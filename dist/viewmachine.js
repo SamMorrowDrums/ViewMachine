@@ -374,23 +374,23 @@ ViewMachine = (function (VM, doc) {
       if (el) {
         el.parent = this;
         removed = this.children.splice(pos, n, el);
-        if (this.drawn && el!== undefined) {
-          if (pos > 0) {
-            var temp = doc.getElementById(this.children[pos-1].properties.id);
-            if (temp) {
-              try {
-                temp.insertAdjacentHTML('afterend', el.html(true).outerHTML);
-              } catch (e) {
-                this.parent.draw();
+        try {
+          if (this.drawn && el!== undefined) {
+            if (pos > 0) {
+              var temp = doc.getElementById(this.children[pos-1].properties.id);
+              if (temp) {
+                  temp.insertAdjacentHTML('afterend', el.html(true).outerHTML);
+              } else {
+                this.append(el);
               }
+              el.drawn = true;
             } else {
-              this.append(el);
+              doc.getElementById(this.properties.id).appendChild(el.html(true));
+              el.drawn = true;
             }
-            el.drawn = true;
-          } else {
-            doc.getElementById(this.properties.id).appendChild(el.html(true));
-            el.drawn = true;
           }
+        } catch (e) {
+          this.parent.draw();
         }
       } else {
         removed = this.children.splice(pos, n);
