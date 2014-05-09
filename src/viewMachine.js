@@ -8,7 +8,7 @@ ViewMachine = (function (VM, doc) {
   //New constructor function, to begin creating DOM element object constructors and prototypes
   var events = [];
   VM.El = function (element, properties) {
-    if (! this instanceof VM.El) {
+    if (this instanceof VM.El === false) {
       return new VM.El(element, properties);
     }
     this.element = element;
