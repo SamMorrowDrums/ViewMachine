@@ -183,6 +183,18 @@ ViewMachine = (function (VM, doc) {
       }
       return this;
     },
+    mappend: function (list) {
+      if (typeof list === 'object') {
+        for (var item in list) {
+          this.append(list[item]);
+        }
+      } else {
+        for (var i = 0; i < list.length; i++) {
+          this.append(list[i]);
+        }
+      }
+      return this;
+    },
     prepend: function (el) {
       //Add an element as the first child
       el.parent = this;
