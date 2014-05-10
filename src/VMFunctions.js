@@ -74,17 +74,36 @@ ViewMachine = (function (VM) {
       delete VM.event[event];
     }
   };
+  
   var h = Object.prototype.hasOwnProperty;
+  
   VM.isEmpty = function (obj) {
     if (obj == null) return true;
     if (obj.length > 0)    return false;
     if (obj.length === 0)  return true;
     // toString and valueOf enumeration bugs in IE < 9
     for (var key in obj) {
-        if (h.call(obj, key)) return false;
+      if (h.call(obj, key)) return false;
     }
-
     return true;
   };
+
+  VM.schonfinkelize = function (fn) {
+    var slice = Array.prototype.slice,
+      stored_args = slice.call(arguments, 1);
+    return function () {
+      var new_args = slice.call(arguments),
+        args = stored_args.concat(new_args);
+      return fn.apply(null, args);
+    };
+  };
+ 
+  VM.trim = function (str, max, append) {
+    if (str.length >= max) {
+      str = str.substring(0, max);
+    }
+    return append ? str + append : str;
+  };
+
   return VM;
 }(ViewMachine));

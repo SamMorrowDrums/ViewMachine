@@ -1,4 +1,5 @@
-var VM = ViewMachine;
+var ViewMachine = ViewMachine || {},
+    VM = ViewMachine;
 ViewMachine = (function (VM, doc) {
   'use strict';
   /*

@@ -74,20 +74,72 @@ ViewMachine = (function (VM) {
       delete VM.event[event];
     }
   };
+  
   var h = Object.prototype.hasOwnProperty;
+  
   VM.isEmpty = function (obj) {
     if (obj == null) return true;
     if (obj.length > 0)    return false;
     if (obj.length === 0)  return true;
     // toString and valueOf enumeration bugs in IE < 9
     for (var key in obj) {
-        if (h.call(obj, key)) return false;
+      if (h.call(obj, key)) return false;
     }
-
     return true;
   };
+
+  VM.schonfinkelize = function (fn) {
+    var slice = Array.prototype.slice,
+      stored_args = slice.call(arguments, 1);
+    return function () {
+      var new_args = slice.call(arguments),
+        args = stored_args.concat(new_args);
+      return fn.apply(null, args);
+    };
+  };
+ 
+  VM.trim = function (str, max, append) {
+    if (str.length >= max) {
+      str = str.substring(0, max);
+    }
+    return append ? str + append : str;
+  };
+
   return VM;
-}(ViewMachine));;var VM = ViewMachine;
+}(ViewMachine));;if (ViewMachine === undefined) {
+  var ViewMachine = {};
+}
+ViewMachine = (function (VM) {
+  'use strict';
+
+  var dataHandler = function (name, el, func) {
+    //Bind a reference to a VM.El with a callback function, for binding data
+    this.data = this.data || {};
+    this.data[name] = VM.schonfinkelize(func, el);
+  };
+   
+  var ref = function(ref, el) {
+    //Establish flat refs to VM.El objects, that can be set during construction, for controller use in MVC patterns
+    this.refs = this.refs || {};
+    this.refs[ref] = el;
+  };
+
+  VM.Gen = function (constructor) {
+    //Template generator class - bind data and keep references, build new versions automatically.
+    this.build = function(){
+      var template = {
+        dataHandler: dataHandler,
+        ref: ref
+      };
+      template.DOM = constructor.apply(template);
+
+      return template;
+    };
+    //Template Generator function
+  };
+  return VM;
+}(ViewMachine));;var ViewMachine = ViewMachine || {},
+    VM = ViewMachine;
 ViewMachine = (function (VM, doc) {
   'use strict';
   /*
