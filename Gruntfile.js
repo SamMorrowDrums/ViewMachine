@@ -1,14 +1,21 @@
 module.exports = function(grunt) {
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
+    build: {
+      all: {
+        dest: "dist/viewmachine.js",
+      }
+    },
+    jshint: {
+      files: ['Gruntfile.js', 'src/**/*.js', 'build/**/*.js'],
       options: {
-        separator: ';'
-      },
-      dist: {
-        src: ['src/*.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+        // options here to override JSHint defaults
+        jshintrc: true,
+        globals: {
+          console: true,
+          module: true,
+          document: true
+        }
       }
     },
     uglify: {
@@ -17,28 +24,13 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
-        }
-      }
-    },
-    qunit: {
-      files: ['test/**/*.html']
-    },
-    jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
-      options: {
-        // options here to override JSHint defaults
-        globals: {
-          jQuery: true,
-          console: true,
-          module: true,
-          document: true
+          'dist/<%= pkg.name %>.min.js': ['dist/<%= pkg.name %>.js']
         }
       }
     },
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'qunit']
+      tasks: ['jshint', 'build', 'uglify']
     }
   });
 
@@ -46,10 +38,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadTasks( "build/" );
 
-  grunt.registerTask('test', ['jshint', 'qunit']);
-
-  grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
+  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'build', 'uglify']);
 
 };

@@ -78,7 +78,7 @@ ViewMachine = (function (VM) {
   var h = Object.prototype.hasOwnProperty;
   
   VM.isEmpty = function (obj) {
-    if (obj == null) return true;
+    if (obj === null) return true;
     if (obj.length > 0)    return false;
     if (obj.length === 0)  return true;
     // toString and valueOf enumeration bugs in IE < 9
