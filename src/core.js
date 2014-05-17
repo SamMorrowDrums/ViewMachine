@@ -1,29 +1,28 @@
 define([
 ],
 function (viewMachine) {
-  viewMachine = function (element, properties, style) {
-    return new viewMachine.init(element, properties, style);
+  viewMachine = function (element, attrs, style) {
+    return new viewMachine.init(element, attrs, style);
   };
-  viewMachine.init = function (element, properties, style) {
-    var $ = document.createElement(element);
+  viewMachine.init = function (element, attrs, style) {
+    var $ = element.toLowerCase() !== 'body' ? document.createElement(element) : document.getElementsByTagName('body')[0];
     this.$ = $;
     $.VM = this;
     this.element = $.tagName;
-    if (properties === undefined) {
-      properties = {};
+    if (attrs === undefined) {
+      attrs = {};
     }
-    if (properties.id) {
-      this.id = properties.id;
+    if (attrs.id !== null) {
+      $.id = attrs.id;
     }
-    this.drawn = false;
-    this.properties = properties;
-    this.children = [];
+    this.attrs = attrs;
     this.events = [];
     this.style = {};
-    this.parent = 'body';
     this.type = 'ViewMachine';
     return this;
   };
+  if (window.onload === null) {window.onload = function() {viewMachine.body = viewMachine('body'); };
+  } else if (document.onload === null) {document.onload = function() {viewMachine.body = viewMachine('body'); }; }
   viewMachine.init.prototype = viewMachine.prototype;
   window.viewMachine = window.VM = viewMachine;
   return viewMachine;

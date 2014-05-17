@@ -7,6 +7,15 @@ define([
   */
   //New constructor function, to begin creating DOM element object constructors and prototypes
   var events = [];
+
+  viewMachine.prototype.parent = function () {
+    return this.$.parentNode;
+  };
+
+  viewMachine.prototype.children = function () {
+    return this.$.children;
+  };
+
   viewMachine.prototype.text = function (text) {
     this.properties.text = text;
     if (this.drawn) {
@@ -20,76 +29,6 @@ define([
       return this.id;
     }
     return (Math.floor(Math.random()* 10000000 + 1)).toString();
-  };
-  viewMachine.prototype.html = function (draw) {
-    //Returns HTML string of self and all child elements
-    if (!this.drawn) {
-      this.properties.id = this.getId();
-    }
-    if (draw) {
-      this.drawn = true;
-    }
-    var el = this.$;
-    for (var prop in this.properties) {
-      if (prop === 'text') {
-        el.innerHTML = this.properties[prop];
-      } else if (prop === 'id' ){
-          el.id = this.properties[prop];
-      } else {
-        el.setAttribute(prop, this.properties[prop]);
-      }
-    }
-    for (var css in this.style) {
-      el.style[css] = this.style[css];
-    }
-    var len = this.children.length;
-    for (var n = 0; n < len; n++) {
-      el.appendChild(this.children[n].html(draw));
-    }
-    for (var i in this.events) {
-      this.events[i].id = this.properties.id;
-      events.push([this.events[i], this]);
-    }
-    return el;
-  };
-  viewMachine.prototype.draw = function () {
-    //Draws element, including all children, on the DOM
-    events = [];
-    if (this.drawn) {
-      //If already on the DOM, just redraw
-      this.replace(this.html(true).outerHTML);
-    } else {
-      var el;
-      if (typeof this.parent === 'string') {
-        //If parent is set as a jQuery identifier (default: body), then append to that element
-        el = document.getElementsByTagName(this.parent)[0];
-        el.appendChild(this.html(true));
-        this.drawn = true;
-      } else if (this.parent.drawn === true) {
-        //If parent is a ViewMachine object, append self to the parent
-        el = document.getElementById(this.parent.properties.id);
-        el.appendChild(this.html(true));
-        this.drawn = true;
-      } else {
-        throw('DrawError: Parent element not on page');
-      }
-    }
-    var n = events.length;
-    var str;
-    function caller (id, event, callback, element){
-      viewMachine.addEventListener(document.getElementById(id), event, function (e) {
-        viewMachine.trigger(callback, element);
-      });
-    }
-    for (var i = 0; i < n; i++) {
-      if (typeof events[i][0].callback === 'function') {
-        viewMachine.addEventListener(document.getElementById(events[i][0].id), events[i][0].event, events[i][0].callback);
-      }
-      else {
-        caller(events[i][0].id, events[i][0].event, events[i][0].callback, events[i][1]);
-      }
-    }
-    return this;
   };
   viewMachine.prototype.event = function (event, callback){
     //Method for adding events, that persist after a redraw
@@ -154,11 +93,7 @@ define([
   };
   viewMachine.prototype.append = function (el) {
     //Sets up the parent child relationship of DOM element objects
-    el.parent = this;
-    this.children.push(el);
-    if (this.drawn) {
-      el.draw();
-    }
+    this.$.appendChild(el.$);
     return this;
   };
   viewMachine.prototype.mappend = function (list) {
