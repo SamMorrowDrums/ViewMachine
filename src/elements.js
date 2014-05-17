@@ -271,7 +271,7 @@ define([
   };
 
   //New version of the makeList, now a constructor for a list type
-  viewMachine.Parent = function (type, childType, arg) {
+  viewMachine.parent = function (type, childType, arg) {
     //Construct html parent object (create lists, select boxes, or append a list of children to a base type)
     var el, props, parent = type;
     if (type.properties) {

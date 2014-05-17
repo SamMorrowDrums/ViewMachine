@@ -5,8 +5,10 @@ function (viewMachine) {
     return new viewMachine.init(element, properties, style);
   };
   viewMachine.init = function (element, properties, style) {
-    this.element = element;
-    this.$ = document.createElement(element);
+    var $ = document.createElement(element);
+    this.$ = $;
+    $.VM = this;
+    this.element = $.tagName;
     if (properties === undefined) {
       properties = {};
     }
