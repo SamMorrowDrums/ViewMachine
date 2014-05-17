@@ -271,17 +271,17 @@ define([
   };
 
   //New version of the makeList, now a constructor for a list type
-  viewMachine.ParentEl = function (type, childType, arg) {
+  viewMachine.Parent = function (type, childType, arg) {
     //Construct html parent object (create lists, select boxes, or append a list of children to a base type)
     var el, props, parent = type;
     if (type.properties) {
       props = type.properties;
       parent = type.type;
     }
-    el = new viewMachine.El(parent, props);
+    el = new viewMachine.init(parent, props);
     if (typeof arg === "number") {
       for (var n = 0; n < arg; n++) {
-        el.append(new viewMachine.El(childType));
+        el.append(new viewMachine.init(childType));
       }
     } else if (Array.isArray(arg)) {
       var value, child;
@@ -291,10 +291,10 @@ define([
           if (arg[item].type === 'ViewMachine') {
             child = arg[item];
           } else {
-           child = new viewMachine.El(childType, arg[item]);
+           child = new viewMachine.init(childType, arg[item]);
           }
         } else {
-          child = new viewMachine.El(childType, {text: arg[item]});
+          child = new viewMachine.init(childType, {text: arg[item]});
         }
         el.append(child);
       }
@@ -369,7 +369,7 @@ define([
       if (template.element === 'img' && typeof template.preload === 'string') {
         obj = new viewMachine.Image(template.src, template.preload, template.properties);
       } else {
-        obj = new viewMachine.El(template.element, template.properties);
+        obj = new viewMachine.init(template.element, template.properties);
       }
       if (viewMachine.properties[obj.element]) {
         for (var prop in viewMachine.properties[obj.element]) {

@@ -19,7 +19,7 @@ ViewMachine = (function (VM, h) {
       parent = {type: 'ul', properties: arg.parent};
       children = arg.children;
     }
-    return VM.ParentEl(parent, 'li', children);
+    return VM.Parent(parent, 'li', children);
   };
 
   VM.Select = function (arg) {
@@ -29,7 +29,7 @@ ViewMachine = (function (VM, h) {
       parent = {type: 'select', properties: arg.parent};
       children = arg.children;
     }
-    return VM.ParentEl(parent, 'option', children);
+    return VM.Parent(parent, 'option', children);
   };
 
   VM.Table = function (data, keys, headings){
@@ -41,7 +41,7 @@ ViewMachine = (function (VM, h) {
     var temp, rowdata, text;
     var theHeadings = headings || keys;
     table.currentHeadings = theHeadings;
-    header.append(new VM.ParentEl('tr', 'th', theHeadings));
+    header.append(new VM.Parent('tr', 'th', theHeadings));
     for (var row in data) {
       if (h.call(data, row)){
         temp = new VM.El('tr');
@@ -129,7 +129,7 @@ ViewMachine = (function (VM, h) {
       this.currentHeadings = headings || keys;
       var tempData = {};
       tempData = VM.extend(tempData, this.currentData);
-      this.children[0].splice(0, 1, new VM.ParentEl('tr', 'th', this.currentHeadings));
+      this.children[0].splice(0, 1, new VM.Parent('tr', 'th', this.currentHeadings));
       this.data([]);
       this.keys = keys;
       this.data(tempData);
