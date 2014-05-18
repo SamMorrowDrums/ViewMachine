@@ -1,5 +1,7 @@
 define([
-
+  './core',
+  './elements',
+  './types',
 ],function (viewMachine, document) {
 
     viewMachine.createTemplate = function (obj) {

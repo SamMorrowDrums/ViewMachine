@@ -1,5 +1,5 @@
 define([
-
+  './core'
 ],function (viewMachine, document) {
 
   viewMachine.prototype.text = function (text) {

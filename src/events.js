@@ -1,5 +1,5 @@
 define([
-
+  './core'
 ],function (viewMachine, document) {
 
   var events = [];

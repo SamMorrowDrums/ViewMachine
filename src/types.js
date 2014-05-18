@@ -1,5 +1,6 @@
 define([
-
+  './core',
+  './elements'
 ],function (viewMachine, document) {
 
   viewMachine.List = function (arg) {

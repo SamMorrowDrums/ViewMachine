@@ -1,5 +1,5 @@
 define([
-
+  './core'
 ],function (viewMachine, document) {
 
   viewMachine.parent = function (type, childType, arg) {
