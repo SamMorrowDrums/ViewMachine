@@ -27,6 +27,7 @@ define([
     }
     return this;
   };
+  
   viewMachine.prototype.removeClass = function (cl) {
     var classes = this.properties['class'].split(' ');
     var i = classes.indexOf(cl);
