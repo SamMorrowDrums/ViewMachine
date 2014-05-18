@@ -23,13 +23,7 @@ define([
     }
     return this;
   };
-  viewMachine.prototype.getId = function () {
-    //Basic function for getting unique IDs or set ones
-    if (this.id) {
-      return this.id;
-    }
-    return (Math.floor(Math.random()* 10000000 + 1)).toString();
-  };
+
   viewMachine.prototype.event = function (event, callback){
     //Method for adding events, that persist after a redraw
     this.events.push({event: event, callback: callback});
