@@ -70,6 +70,33 @@ define([
     return this;
   };
 
+  viewMachine.prototype.css = function (prop, value) {
+    
+    //Set and get inline style for an element
+
+    if (typeof prop === 'object') {
+
+      // If object input, set all key, value pairs
+
+      for (var name in prop) {
+        this.$.style[name] = prop[name];
+      }
+    } else if (typeof prop === 'string' && value !== undefined) {
+
+      // Set single key, value
+
+      this.$.style[prop] = value;
+
+    } else if (prop !== undefined) {
+
+      // Get value
+
+      return getComputedStyle(this.$)[prop];
+    }
+
+    return this;
+  };
+
   viewMachine.prototype.addClass = function (cl) {
     var classes;
     if (!this.properties['class']) {
@@ -95,30 +122,6 @@ define([
       this.properties['class'] = classes.join(' ');
       if (this.drawn) {
         document.getElementById(this.properties.id).setAttribute('class', this.properties['class']);
-      }
-    }
-    return this;
-  };
-  viewMachine.prototype.css = function (prop, value) {
-    //Enables you to specifically set CSS for an element
-    if (typeof prop === 'string') {
-      if (value === undefined) {
-        if (this.drawn){
-          return getComputedStyle(document.getElementById(this.properties.id))[prop];
-        } else {
-          return this.style[prop] || '';
-        }
-      }
-      this.style[prop] = value;
-      if (this.drawn){
-        document.getElementById(this.properties.id).style[prop] = value;
-      }
-    } else {
-      for (var val in prop){
-        this.style[val] = prop[val];
-        if (this.drawn) {
-          document.getElementById(this.properties.id).style[val] = prop[val];
-        }
       }
     }
     return this;
