@@ -71,7 +71,7 @@ define([
   };
 
   viewMachine.prototype.css = function (prop, value) {
-    
+
     //Set and get inline style for an element
 
     if (typeof prop === 'object') {
@@ -98,30 +98,39 @@ define([
   };
 
   viewMachine.prototype.addClass = function (cl) {
-    var classes;
-    if (!this.properties['class']) {
-      classes = [];
+    var classes = this.$.getAttribute('class'),
+    split;
+    // If existing classes, add gracefully to end
+
+    if (classes && classes.indexOf(cl) < 0) {
+      split = classes.split(' ');
+      split.push(cl);
+      this.$.setAttribute('class', split.join(' '));
     } else {
-      classes = this.properties['class'].split(' ');
-    }
-    if (classes.indexOf(cl) === -1) {
-      classes.push(cl);
-      this.properties['class'] = classes.join(' ');
-      if (this.drawn) {
-        document.getElementById(this.properties.id).setAttribute('class', this.properties['class']);
-      }
+
+      // Else set class equal to new class
+
+      this.$.setAttribute('class', cl);
     }
     return this;
   };
 
   viewMachine.prototype.removeClass = function (cl) {
-    var classes = this.properties['class'].split(' ');
-    var i = classes.indexOf(cl);
-    if (i >= 0 ) {
-      classes.splice(i, 1);
-      this.properties['class'] = classes.join(' ');
-      if (this.drawn) {
-        document.getElementById(this.properties.id).setAttribute('class', this.properties['class']);
+    var classes = this.$.getAttribute('class'),
+        split,
+        i;
+
+    // Find and remove class any instance of class
+
+    if (classes) {
+      split = classes.split(' ');
+      i = split.indexOf(cl);
+      if (i >= 0 ) {
+
+        // If match found, remove
+
+        split.splice(i, 1);
+        this.$.setAttribute('class', split.join(' '));
       }
     }
     return this;
