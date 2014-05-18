@@ -43,6 +43,33 @@ define([
 
   };
 
+  viewMachine.prototype.data = function (name, data) {
+    var str = 'data-';
+    // Gets and sets data-attributes
+
+    if (typeof name === 'object') {
+
+      // If object input, set all key, value pairs
+
+      for (var key in name) {
+        this.$.setAttribute(str + key.toString(), name[key]);
+      }
+    } else if (typeof name === 'string' && data !== undefined) {
+
+      // Set single key, value
+
+      this.$.setAttribute(str + name.toString(), data);
+
+    } else if (name !== undefined) {
+
+      // Get value
+
+      return this.$.getAttribute(str + name.toString());
+    }
+
+    return this;
+  };
+
   viewMachine.prototype.addClass = function (cl) {
     var classes;
     if (!this.properties['class']) {
