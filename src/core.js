@@ -13,8 +13,8 @@ function (viewMachine) {
       if ($.VM !== undefined) return $.VM;
     } else {
       $ = element.toLowerCase() !== 'body' ? document.createElement(element) : document.body;
-      this.$ = $;
     }
+    this.$ = $;
     $.VM = this;
     this.element = $.tagName;
     if (attrs === undefined) {

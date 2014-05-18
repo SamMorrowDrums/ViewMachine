@@ -1,10 +1,19 @@
-if (ViewMachine === undefined) {
-  var ViewMachine = {};
-}
-ViewMachine = (function (VM) {
-  'use strict';
+define([
+  './core'
+],
+function (ViewMachine) {
 
-  VM.extend = function(out) {
+  viewMachine.crunch = function(source) {
+    var src = viewMachine(source);
+    var children = src.children();
+    var len = children.length;
+    for (var i = 0; i < len; i++) {
+      viewMachine.crunch(children[i]);
+    }
+    return src;
+  };
+
+  viewMachine.extend = function(out) {
     out = out || {};
     for (var i = 1; i < arguments.length; i++) {
       var obj = arguments[i];
@@ -15,7 +24,7 @@ ViewMachine = (function (VM) {
         for (var n = 0; n < obj.length; n++) {
           if (typeof obj[n] === 'object') {
             out.push({});
-            VM.extend(out[i], obj[i]);
+            viewMachine.extend(out[i], obj[i]);
           } else {
             out.push(obj[i]);
           }
@@ -24,7 +33,7 @@ ViewMachine = (function (VM) {
       for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
           if (typeof obj[key] === 'object')
-            VM.extend(out[key], obj[key]);
+            viewMachine.extend(out[key], obj[key]);
           else
             out[key] = obj[key];
         }
@@ -33,9 +42,9 @@ ViewMachine = (function (VM) {
     return out;
   };
 
-  VM.event = {};
+  viewMachine.event = {};
 
-  VM.addEventListener = function (el, eventName, handler) {
+  viewMachine.addEventListener = function (el, eventName, handler) {
     if (el.addEventListener) {
       el.addEventListener(eventName, handler);
     } else {
@@ -43,41 +52,41 @@ ViewMachine = (function (VM) {
     }
   };
 
-  VM.on = function (event, callback, data) {
+  viewMachine.on = function (event, callback, data) {
     if (typeof event === 'string' && typeof callback === 'function') {
-      if (VM.event[event] ===  undefined) {
-        VM.event[event] = [];
+      if (viewMachine.event[event] ===  undefined) {
+        viewMachine.event[event] = [];
       }
-      VM.event[event].push([callback, data]);
+      viewMachine.event[event].push([callback, data]);
     } else {
-      throw('Type Error: VM.on expects, (string, function)');
+      throw('Type Error: viewMachine.on expects, (string, function)');
     }
   };
 
-  VM.trigger = function (event, data) {
-    if (VM.event[event] !== undefined) {
+  viewMachine.trigger = function (event, data) {
+    if (viewMachine.event[event] !== undefined) {
       var info = {
         event: event,
         timestamp: new Date().getTime()
       };
-      for (var i = 0; i < VM.event[event].length; i++) {
-        if (VM.event[event][i].length === 2) {
-          info.data = VM.event[event][i][1];
+      for (var i = 0; i < viewMachine.event[event].length; i++) {
+        if (viewMachine.event[event][i].length === 2) {
+          info.data = viewMachine.event[event][i][1];
         }
-        VM.event[event][i][0](info, data);
+        viewMachine.event[event][i][0](info, data);
       }
     }
   };
 
-  VM.removeAllListeners = function (event) {
-    if (VM.event[event] !== undefined) {
-      delete VM.event[event];
+  viewMachine.removeAllListeners = function (event) {
+    if (viewMachine.event[event] !== undefined) {
+      delete viewMachine.event[event];
     }
   };
   
   var h = Object.prototype.hasOwnProperty;
   
-  VM.isEmpty = function (obj) {
+  viewMachine.isEmpty = function (obj) {
     if (obj === null) return true;
     if (obj.length > 0)    return false;
     if (obj.length === 0)  return true;
@@ -88,7 +97,7 @@ ViewMachine = (function (VM) {
     return true;
   };
 
-  VM.schonfinkelize = function (fn) {
+  viewMachine.schonfinkelize = function (fn) {
     var slice = Array.prototype.slice,
       stored_args = slice.call(arguments, 1);
     return function () {
@@ -98,12 +107,12 @@ ViewMachine = (function (VM) {
     };
   };
  
-  VM.trim = function (str, max, append) {
+  viewMachine.trim = function (str, max, append) {
     if (str.length >= max) {
       str = str.substring(0, max);
     }
     return append ? str + append : str;
   };
 
-  return VM;
-}(ViewMachine));
+  return viewMachine;
+});
