@@ -1,6 +1,6 @@
 define([
 
-],function (viewMachine, document) {
+],function (viewMachine) {
 
   function Template (constructor) {
     this.DOM = constructor.apply(this);

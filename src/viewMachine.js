@@ -2,6 +2,7 @@ define([
   './core',
   './elements',
   './movement',
+  './text',
   './events',
   './funcs',
   './parents',

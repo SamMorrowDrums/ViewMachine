@@ -1,11 +1,6 @@
 define([
   './core'
-],function (viewMachine, document) {
-
-  viewMachine.prototype.text = function (text) {
-    this.properties.text = text;
-    return this;
-  };
+],function (viewMachine) {
 
   viewMachine.prototype.addClass = function (cl) {
     var classes;
