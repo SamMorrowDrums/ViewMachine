@@ -1,10 +1,6 @@
 define([
 
 ],function (viewMachine, document) {
-  /*
-    This is a library of HTML element auto-constructors, that put single element types, or groups of elements like an unsorted list (ul, li), in the DOM (where applicable, capable of introspection, for more complex data. Designed to be used by template systems
-  */
-  //New constructor function, to begin creating DOM element object constructors and prototypes
 
   viewMachine.prototype.text = function (text) {
     this.properties.text = text;
@@ -27,7 +23,7 @@ define([
     }
     return this;
   };
-  
+
   viewMachine.prototype.removeClass = function (cl) {
     var classes = this.properties['class'].split(' ');
     var i = classes.indexOf(cl);

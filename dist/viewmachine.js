@@ -32,10 +32,6 @@
   viewMachine.init.prototype = viewMachine.prototype;
   window.viewMachine = window.VM = viewMachine;
 
-  /*
-    This is a library of HTML element auto-constructors, that put single element types, or groups of elements like an unsorted list (ul, li), in the DOM (where applicable, capable of introspection, for more complex data. Designed to be used by template systems
-  */
-  //New constructor function, to begin creating DOM element object constructors and prototypes
 
   viewMachine.prototype.text = function (text) {
     this.properties.text = text;
@@ -58,7 +54,7 @@
     }
     return this;
   };
-  
+
   viewMachine.prototype.removeClass = function (cl) {
     var classes = this.properties['class'].split(' ');
     var i = classes.indexOf(cl);
@@ -564,3 +560,10 @@
     //Template Generator function
   };
 
+  /*
+  viewMachine is a library/framework for dealing with templates, DOM manipulation responsive web design in pure JS.
+
+  There is a philosophy of generation, rather than classic templating, while being able to serialize everything.
+
+  The bottom line is, be free with your JS. Follow MVC, follow a new pattern, never compromise on flexability, whateve you choose.
+  */
