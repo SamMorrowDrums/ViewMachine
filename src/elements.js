@@ -2,6 +2,47 @@ define([
   './core'
 ],function (viewMachine) {
 
+  viewMachine.prototype.attrs = function (attr, val) {
+    
+    // Gets and sets attributes
+
+    if (typeof attr === 'object') {
+
+      // If object input, set all key, value pairs
+
+      for (var key in attr) {
+        this.$.setAttribute(key, attr[key]);
+      }
+    } else if (typeof attr === 'string' && val !== undefined) {
+
+      // Set single key, value
+
+      this.$.setAttribute(attr, val);
+
+    } else if (attr !== undefined) {
+
+      // Get value
+
+      return this.$.getAttribute(attr);
+    }
+
+    return this;
+  };
+
+  viewMachine.prototype.getAllAttrs = function () {
+    var attrs = this.$.attributes,
+        result = {};
+
+    // Find and return all set attributes of an element
+
+    for (var i = 0; i < attrs.length; i++) {
+      result[attrs[i].name] = attrs[i].value;
+    }
+
+    return result;
+
+  };
+
   viewMachine.prototype.addClass = function (cl) {
     var classes;
     if (!this.properties['class']) {
