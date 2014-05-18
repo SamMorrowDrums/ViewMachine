@@ -1,56 +1,46 @@
-if (ViewMachine === undefined) {
-  var ViewMachine = {};
-}
-ViewMachine = (function (VM, h) {
-  'use strict';
-  /*
-  This is the home of ViewMachine constructor functions for higher order HTML structures, such as Tables and Lists.
-  */
+define([
 
-  //When creating a constructor function, add your methods to the types object, so you can add the methods to an object, even without calling the constructor
-  VM.types = VM.types || {};
-  //Also register the poperties that need to be stored in order to use the above methods
-  VM.properties = VM.properties || {};
+],function (viewMachine, document) {
 
- VM.List = function (arg) {
+  viewMachine.List = function (arg) {
     //Construct html list object takes either a number, JS list, or an object with parent properties for the UL, and a child property containing a list
     var parent = 'ul', children = arg;
     if (arg.parent) {
       parent = {type: 'ul', properties: arg.parent};
       children = arg.children;
     }
-    return VM.parent(parent, 'li', children);
+    return viewMachine.parent(parent, 'li', children);
   };
 
-  VM.Select = function (arg) {
+  viewMachine.Select = function (arg) {
     //Construct html Select object takes either a number, JS list, or an object with 'parent' containing properties for the select, and a child property containing a list
     var parent = 'select', children = arg;
     if (arg.parent) {
       parent = {type: 'select', properties: arg.parent};
       children = arg.children;
     }
-    return VM.parent(parent, 'option', children);
+    return viewMachine.parent(parent, 'option', children);
   };
 
-  VM.Table = function (data, keys, headings){
+  viewMachine.Table = function (data, keys, headings){
     //Constructs an HTML table El, binding to data, via an array key names, and an object/array with repeated keys
-    var table = new VM.El('table');
-    var header = new VM.El('thead');
-    var body = new VM.El('tbody');
+    var table = viewMachine('table');
+    var header = viewMachine('thead');
+    var body = viewMachine('tbody');
     var rows = keys.length;
     var temp, rowdata, text;
     var theHeadings = headings || keys;
     table.currentHeadings = theHeadings;
-    header.append(new VM.parent('tr', 'th', theHeadings));
+    header.append(new viewMachine.parent('tr', 'th', theHeadings));
     for (var row in data) {
       if (h.call(data, row)){
-        temp = new VM.El('tr');
+        temp = viewMachine('tr');
         for (var i = 0; i < rows; i++) {
           text = data[row][keys[i]];
           if (Array.isArray(text)){
             text = text.join(', ');
           }
-          temp.append(new VM.El('td', {text: text } ) );
+          temp.append(viewMachine('td', {text: text } ) );
         }
         body.append(temp);
       }
@@ -59,13 +49,13 @@ ViewMachine = (function (VM, h) {
     table.append(body);
     table.preserve = false;
     table.keys = keys;
-    VM.extend(table, VM.types.table);
+    viewMachine.extend(table, viewMachine.types.table);
     table.currentData = {};
-    table.currentData = VM.extend(table.currentData, data);
+    table.currentData = viewMachine.extend(table.currentData, data);
     return table;
   };
-  VM.properties.table = ['currentData', 'keys', 'currentHeadings'];
-  VM.types.table = {
+  viewMachine.properties.table = ['currentData', 'keys', 'currentHeadings'];
+  viewMachine.types.table = {
     data: function (data){
       //Adds a data method, allowing you to update the data for the table automatically
       var rows = this.keys.length;
@@ -95,16 +85,16 @@ ViewMachine = (function (VM, h) {
         if (h.call(data, row)) {
           tempData[row] = data[row];
           if (! h.call(this.currentData, row)) {
-            temp = new VM.El('tr');
+            temp = viewMachine('tr');
             for (var n = 0; n < rows; n++) {
               if (h.call(data[row], this.keys[n])) {
                 text = data[row][this.keys[n]];
                 if (Array.isArray(text)){
                   text = text.join(', ');
                 }
-                temp.append(new VM.El('td', {text: text } ) );
+                temp.append(viewMachine('td', {text: text } ) );
               } else {
-                temp.append(new VM.El('td') );
+                temp.append(viewMachine('td') );
               }
             }
             this.children[1].splice(i, 0, temp);
@@ -128,8 +118,8 @@ ViewMachine = (function (VM, h) {
       //Change the rows / order of rows for a table, using the current data 
       this.currentHeadings = headings || keys;
       var tempData = {};
-      tempData = VM.extend(tempData, this.currentData);
-      this.children[0].splice(0, 1, new VM.parent('tr', 'th', this.currentHeadings));
+      tempData = viewMachine.extend(tempData, this.currentData);
+      this.children[0].splice(0, 1, new viewMachine.parent('tr', 'th', this.currentHeadings));
       this.data([]);
       this.keys = keys;
       this.data(tempData);
@@ -141,17 +131,17 @@ ViewMachine = (function (VM, h) {
     }
   };
 
-  VM.Video = function (types, src, attrs) {
-    var video = new VM.El('video', attrs);
+  viewMachine.Video = function (types, src, attrs) {
+    var video = viewMachine('video', attrs);
     for (var type in types) {
-      video.append( new VM.El( 'source', {src: src + '.' + types[type], type: 'video/' + types[type]} ) );
+      video.append( viewMachine( 'source', {src: src + '.' + types[type], type: 'video/' + types[type]} ) );
     }
     return video;
   };
 
 
-  VM.Image = function (src, preloadSrc, attrs) {
-    var img = new VM.El('img', {src: preloadSrc, 'data-img': src});
+  viewMachine.Image = function (src, preloadSrc, attrs) {
+    var img = viewMachine('img', {src: preloadSrc, 'data-img': src});
     img.preload = preloadSrc;
     img.src = src;
     for (var attr in attrs) {
@@ -168,7 +158,7 @@ ViewMachine = (function (VM, h) {
     return img;
   };
 
-  VM.properties.img = ['src', 'preload'];
+  viewMachine.properties.img = ['src', 'preload'];
 
-  return VM;
-}(ViewMachine, Object.prototype.hasOwnProperty));
+  return viewMachine;
+});

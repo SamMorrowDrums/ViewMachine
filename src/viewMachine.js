@@ -1,6 +1,12 @@
 define([
   './core',
-  './elements'
+  './elements',
+  './movement',
+  './events',
+  './funcs',
+  './parents',
+  './types',
+  './generators',
 ],
 function (viewMachine) {
   

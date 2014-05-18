@@ -83,7 +83,7 @@ function (ViewMachine) {
       delete viewMachine.event[event];
     }
   };
-  
+  //This is not neccessarily more efficient and should likely be dropped
   var h = Object.prototype.hasOwnProperty;
   
   viewMachine.isEmpty = function (obj) {
