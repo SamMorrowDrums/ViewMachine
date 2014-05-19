@@ -11,28 +11,10 @@ define([
   };
 
   viewMachine.prototype.remove = function () {
-    //Removes elements from their parents and from DOM if drawn
-    if (this.drawn) {
-      var el = document.getElementById(this.properties.id);
-      if (el) {
-        el.parentNode.removeChild(el);
-      }
-      this.drawn = false;
-    } else {
-      if (!this.properties.id) {
-        this.properties.id = this.getId();
-      }
-    }
-    if (typeof this.parent !== 'string') {
-      var children = this.parent.children;
-      var len = children.length;
-      for (var child = 0; child < len; child++) {
-        if (children[child].properties.id === this.properties.id) {
-          this.parent.children.splice(child, 1);
-          return this;
-        }
-      }
-    }
+
+    // Remove element from DOM
+    
+    this.$.remove();
     return this;
   };
   viewMachine.prototype.replace = function (HTML) {
