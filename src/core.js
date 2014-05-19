@@ -30,11 +30,18 @@ function (viewMachine) {
       // If element is string, create DOM element
 
       $ = element.toLowerCase() !== 'body' ? document.createElement(element) : document.body;
+    } else if (element instanceof viewMachine.init === true) {
+
+      // If already a viewMachine Element
+
+      element.attrs(attrs);
+      element.css(style);
+      return element;
     } else {
 
       // Invalid input
 
-      throw('Value Error: element must be eith an HTMLElement, or a string of an HTMLElement');
+      throw('Value Error: element must be either an HTMLElement, or a string of an HTMLElement');
     }
 
     // Create circular relationship with DOM
