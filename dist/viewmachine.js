@@ -28,11 +28,18 @@
       // If element is string, create DOM element
 
       $ = element.toLowerCase() !== 'body' ? document.createElement(element) : document.body;
+    } else if (element instanceof viewMachine.init === true) {
+
+      // If already a viewMachine Element
+
+      element.attrs(attrs);
+      element.css(style);
+      return element;
     } else {
 
       // Invalid input
 
-      throw('Value Error: element must be eith an HTMLElement, or a string of an HTMLElement');
+      throw('Value Error: element must be either an HTMLElement, or a string of an HTMLElement');
     }
 
     // Create circular relationship with DOM
@@ -103,55 +110,94 @@
 
   };
 
-  viewMachine.prototype.addClass = function (cl) {
-    var classes;
-    if (!this.properties['class']) {
-      classes = [];
-    } else {
-      classes = this.properties['class'].split(' ');
-    }
-    if (classes.indexOf(cl) === -1) {
-      classes.push(cl);
-      this.properties['class'] = classes.join(' ');
-      if (this.drawn) {
-        document.getElementById(this.properties.id).setAttribute('class', this.properties['class']);
+  viewMachine.prototype.data = function (name, data) {
+    var str = 'data-';
+    // Gets and sets data-attributes
+
+    if (typeof name === 'object') {
+
+      // If object input, set all key, value pairs
+
+      for (var key in name) {
+        this.$.setAttribute(str + key.toString(), name[key]);
       }
+    } else if (typeof name === 'string' && data !== undefined) {
+
+      // Set single key, value
+
+      this.$.setAttribute(str + name.toString(), data);
+
+    } else if (name !== undefined) {
+
+      // Get value
+
+      return this.$.getAttribute(str + name.toString());
+    }
+
+    return this;
+  };
+
+  viewMachine.prototype.css = function (prop, value) {
+
+    //Set and get inline style for an element
+
+    if (typeof prop === 'object') {
+
+      // If object input, set all key, value pairs
+
+      for (var name in prop) {
+        this.$.style[name] = prop[name];
+      }
+    } else if (typeof prop === 'string' && value !== undefined) {
+
+      // Set single key, value
+
+      this.$.style[prop] = value;
+
+    } else if (prop !== undefined) {
+
+      // Get value
+
+      return getComputedStyle(this.$)[prop];
+    }
+
+    return this;
+  };
+
+  viewMachine.prototype.addClass = function (cl) {
+    var classes = this.$.getAttribute('class'),
+    split;
+    // If existing classes, add gracefully to end
+
+    if (classes && classes.indexOf(cl) < 0) {
+      split = classes.split(' ');
+      split.push(cl);
+      this.$.setAttribute('class', split.join(' '));
+    } else {
+
+      // Else set class equal to new class
+
+      this.$.setAttribute('class', cl);
     }
     return this;
   };
 
   viewMachine.prototype.removeClass = function (cl) {
-    var classes = this.properties['class'].split(' ');
-    var i = classes.indexOf(cl);
-    if (i >= 0 ) {
-      classes.splice(i, 1);
-      this.properties['class'] = classes.join(' ');
-      if (this.drawn) {
-        document.getElementById(this.properties.id).setAttribute('class', this.properties['class']);
-      }
-    }
-    return this;
-  };
-  viewMachine.prototype.css = function (prop, value) {
-    //Enables you to specifically set CSS for an element
-    if (typeof prop === 'string') {
-      if (value === undefined) {
-        if (this.drawn){
-          return getComputedStyle(document.getElementById(this.properties.id))[prop];
-        } else {
-          return this.style[prop] || '';
-        }
-      }
-      this.style[prop] = value;
-      if (this.drawn){
-        document.getElementById(this.properties.id).style[prop] = value;
-      }
-    } else {
-      for (var val in prop){
-        this.style[val] = prop[val];
-        if (this.drawn) {
-          document.getElementById(this.properties.id).style[val] = prop[val];
-        }
+    var classes = this.$.getAttribute('class'),
+        split,
+        i;
+
+    // Find and remove class any instance of class
+
+    if (classes) {
+      split = classes.split(' ');
+      i = split.indexOf(cl);
+      if (i >= 0 ) {
+
+        // If match found, remove
+
+        split.splice(i, 1);
+        this.$.setAttribute('class', split.join(' '));
       }
     }
     return this;
@@ -159,45 +205,62 @@
 
   
   viewMachine.prototype.parent = function () {
-    return this.$.parentNode;
+    var parent = this.$.parentNode;
+
+    // Get parent and return viewMachine property
+
+    if (parent && parent.VM !== undefined) {
+      return parent.VM;
+    } else if (parent) {
+
+      return VM(parent);
+    }
+
+    return parent;
   };
 
   viewMachine.prototype.children = function () {
-    return this.$.children;
+    var children = this.$.children || [],
+        output = [];
+
+    // Find children and return list of their viewMachine properties
+
+    for (var i = 0; i < children.length; i++) {
+      if (children[i].VM !== undefined) {
+        output.push(children[i].VM);
+      } else {
+
+        // Not yet a viewMachine Element, create one
+
+        output.push(viewMachine(children[i]));
+      }
+    }
+
+    return output;
   };
 
   viewMachine.prototype.remove = function () {
-    //Removes elements from their parents and from DOM if drawn
-    if (this.drawn) {
-      var el = document.getElementById(this.properties.id);
-      if (el) {
-        el.parentNode.removeChild(el);
-      }
-      this.drawn = false;
-    } else {
-      if (!this.properties.id) {
-        this.properties.id = this.getId();
-      }
-    }
-    if (typeof this.parent !== 'string') {
-      var children = this.parent.children;
-      var len = children.length;
-      for (var child = 0; child < len; child++) {
-        if (children[child].properties.id === this.properties.id) {
-          this.parent.children.splice(child, 1);
-          return this;
-        }
-      }
-    }
+
+    // Remove element from DOM/parent
+
+    this.$.remove();
     return this;
   };
-  viewMachine.prototype.replace = function (HTML) {
-    //Replaces drawn elements with HTML, designed for updating DOM when 'this' is already drawn, and non-persistant replacement
-    if (this.drawn) {
-      document.getElementById(this.properties.id).outerHTML = HTML;
-      return this;
+  viewMachine.prototype.replace = function (element) {
+    var parent = this.parent();
+    console.log(parent);
+    // If object has a parent HTML element, swap it's children
+
+    if (parent) {
+      viewMachine(parent).$.replaceChild(viewMachine(element).$, this.$);
     }
+
+    return this;
   };
+
+  /*
+  !! DEPRECATED !! - possible add a DOM version of this
+    
   viewMachine.prototype.hide = function () {
     //Function for temporary hiding of an element, non-persistent version of removal
     if (this.drawn) {
@@ -207,80 +270,130 @@
     }
     return this;
   };
+  */
+
   viewMachine.prototype.append = function (el) {
-    //Sets up the parent child relationship of DOM element objects
-    this.$.appendChild(el.$);
+
+    // Appends child to parent
+
+    this.$.appendChild(viewMachine(el).$);
+
     return this;
   };
+
   viewMachine.prototype.mappend = function (list) {
-    if (typeof list === 'object') {
-      for (var item in list) {
-        this.append(list[item]);
-      }
-    } else {
-      for (var i = 0; i < list.length; i++) {
-        this.append(list[i]);
-      }
+    
+    // Multi append, pass a list of elements / viewMachine objects / element types
+
+    for (var i = 0; i < list.length; i++) {
+      this.append(list[i]);
     }
     return this;
   };
+
   viewMachine.prototype.prepend = function (el) {
-    //Add an element as the first child
-    el.parent = this;
-    this.children = [el].concat(this.children);
-    if (this.drawn) {
-      this.draw();
-    }
+    var element = viewMachine(el);
+
+    // Add Element before first child
+
+    this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
+    element.remove();
+    // Ensure that element is the actual element
+
+    element.$ = this.$.firstChild;
+
     return this;
   };
+
   viewMachine.prototype.splice = function (pos, n, el) {
-    //Treats an El, as if it's children are an array and can add in a new child element, uses the actal JS Splice method
-    var removed;
+    var element = el? viewMachine(el).remove() : null,
+    spliced = this.children().splice(pos, n) || [];
+    
+    // Splice an HTML element like an array
+
     if (el) {
-      el.parent = this;
-      removed = this.children.splice(pos, n, el);
-      try {
-        if (this.drawn && el!== undefined) {
-          if (pos > 0) {
-            var temp = document.getElementById(this.children[pos-1].properties.id);
-            if (temp) {
-                temp.insertAdjacentHTML('afterend', el.html(true).outerHTML);
-            } else {
-              this.append(el);
-            }
-            el.drawn = true;
-          } else {
-            document.getElementById(this.properties.id).appendChild(el.html(true));
-            el.drawn = true;
-          }
-        }
-      } catch (e) {
-        this.parent.draw();
-      }
-    } else {
-      removed = this.children.splice(pos, n);
-    }
-    if (this.drawn) {
-      var length = removed.length;
-      for (var i = 0; i < length; i++) {
-        removed[i].remove();
+
+      if (spliced.length) {
+        spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
+        viewMachine(spliced[spliced.length - 1].$.nextSibling);
+      } else {
+        this.prepend(el);
       }
     }
-    return this;
+
+    for (var i = 0; i < spliced.length; i++) {
+      spliced[i].remove();
+    }
+
+    return spliced;
   };
 
 
   viewMachine.prototype.text = function (text) {
-    this.properties.text = text;
+
+    // Completely escaped text function
+
+    this.$.innerHTML = viewMachine.escape(text);
+
     return this;
   };
 
-   
-  viewMachine.trim = function (str, max, append) {
+  viewMachine.escape = function (text) {
+    var div = document.createElement('div');
+
+    // Use native browser HTML escaping;
+
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  };
+
+  viewMachine.prototype.HTMLtext = function (text) {
+    var output = [],
+        substr,
+        reTags = /<([^>]+)>/gm,
+        reOnEvent = /<\w+(?=\s)[^>]*?\s(on\w+)[\s\S]+?>/gm,
+        matches = text.match(reTags);
+
+    // Take a string, including HTML, HTML escape body text and exclude script tags 
+
+    if (matches) {
+      for (var i = 0; i < matches.length; i++) {
+
+        // Take lump of text before any HTML tags
+
+        substr = text.substring(0, text.indexOf(matches[i]));
+
+        // Use Native browser HTML excaping
+        output.push(viewMachine.escape(substr));
+
+        // Filter JS for security (script an onEvent tags)
+
+        if (matches[i].toLowerCase().indexOf('script') < 0 && matches[i].match(reOnEvent) === null) {
+          output.push(matches[i]);
+        }
+
+        // Crop remaining text to parse
+
+        text = text.substring(text.indexOf(matches[i])+matches[i].length);
+      }
+    }
+
+    // If any remaining text, HTML escape all characters
+    output.push(viewMachine.escape(text));
+
+    this.$.innerHTML = output.join('');
+
+    return this;
+  };
+
+  viewMachine.trim = function (str, max, suffix) {
+
+    // Trim text to a certain max length, or less with optional suffix
+
     if (str.length >= max) {
       str = str.substring(0, max);
     }
-    return append ? str + append : str;
+    return suffix ? str + suffix : str;
   };
 
 
@@ -412,7 +525,10 @@
 
 
   viewMachine.parent = function (type, childType, arg) {
-    //Construct html parent object (create lists, select boxes, or append a list of children to a base type)
+    
+    // Construct html parent objects (ul, ol, div)
+
+    
     var el, props, parent = type;
     if (type.properties) {
       props = type.properties;

@@ -75,6 +75,7 @@ define([
     // Appends child to parent
 
     this.$.appendChild(viewMachine(el).$);
+
     return this;
   };
 
@@ -94,7 +95,7 @@ define([
     // Add Element before first child
 
     this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
-
+    element.remove();
     // Ensure that element is the actual element
 
     element.$ = this.$.firstChild;
@@ -103,18 +104,18 @@ define([
   };
 
   viewMachine.prototype.splice = function (pos, n, el) {
-    var spliced = this.children().splice(pos, n) || [],
-        element;
+    var element = el? viewMachine(el).remove() : null,
+    spliced = this.children().splice(pos, n) || [];
     
     // Splice an HTML element like an array
 
     if (el) {
-      element = viewMachine(el);
+
       if (spliced.length) {
         spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
-        VM(spliced.$.nextSibling);
+        viewMachine(spliced[spliced.length - 1].$.nextSibling);
       } else {
-        this.append(el);
+        this.prepend(el);
       }
     }
 
