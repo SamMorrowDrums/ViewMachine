@@ -56,6 +56,9 @@ define([
     return this;
   };
 
+  /*
+  !! DEPRECATED !! - possible add a DOM version of this
+    
   viewMachine.prototype.hide = function () {
     //Function for temporary hiding of an element, non-persistent version of removal
     if (this.drawn) {
@@ -65,6 +68,8 @@ define([
     }
     return this;
   };
+  */
+
   viewMachine.prototype.append = function (el) {
 
     // Appends child to parent
@@ -72,24 +77,31 @@ define([
     this.$.appendChild(viewMachine(el).$);
     return this;
   };
+
   viewMachine.prototype.mappend = function (list) {
     
-    //
+    // Multi append, pass a list of elements / viewMachine objects / element types
 
     for (var i = 0; i < list.length; i++) {
       this.append(list[i]);
     }
     return this;
   };
+
   viewMachine.prototype.prepend = function (el) {
-    //Add an element as the first child
-    el.parent = this;
-    this.children = [el].concat(this.children);
-    if (this.drawn) {
-      this.draw();
-    }
+    var element = viewMachine(el);
+
+    // Add Element before first child
+
+    this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
+
+    // Ensure that element is the actual element
+
+    element.$ = this.$.firstChild;
+
     return this;
   };
+  
   viewMachine.prototype.splice = function (pos, n, el) {
     //Treats an El, as if it's children are an array and can add in a new child element, uses the actal JS Splice method
     var removed;
