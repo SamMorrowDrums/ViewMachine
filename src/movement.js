@@ -18,7 +18,7 @@ define([
   };
 
   viewMachine.prototype.children = function () {
-    var children = this.$.children,
+    var children = this.$.children || [],
         output = [];
 
     // Find children and return list of their viewMachine properties
@@ -101,41 +101,28 @@ define([
 
     return this;
   };
-  
+
   viewMachine.prototype.splice = function (pos, n, el) {
-    //Treats an El, as if it's children are an array and can add in a new child element, uses the actal JS Splice method
-    var removed;
+    var spliced = this.children().splice(pos, n) || [],
+        element;
+    
+    // Splice an HTML element like an array
+
     if (el) {
-      el.parent = this;
-      removed = this.children.splice(pos, n, el);
-      try {
-        if (this.drawn && el!== undefined) {
-          if (pos > 0) {
-            var temp = document.getElementById(this.children[pos-1].properties.id);
-            if (temp) {
-                temp.insertAdjacentHTML('afterend', el.html(true).outerHTML);
-            } else {
-              this.append(el);
-            }
-            el.drawn = true;
-          } else {
-            document.getElementById(this.properties.id).appendChild(el.html(true));
-            el.drawn = true;
-          }
-        }
-      } catch (e) {
-        this.parent.draw();
-      }
-    } else {
-      removed = this.children.splice(pos, n);
-    }
-    if (this.drawn) {
-      var length = removed.length;
-      for (var i = 0; i < length; i++) {
-        removed[i].remove();
+      element = viewMachine(el);
+      if (spliced.length) {
+        spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
+        VM(spliced.$.nextSibling);
+      } else {
+        this.append(el);
       }
     }
-    return this;
+
+    for (var i = 0; i < spliced.length; i++) {
+      spliced[i].remove();
+    }
+
+    return spliced;
   };
 
   return viewMachine;
