@@ -66,19 +66,18 @@ define([
     return this;
   };
   viewMachine.prototype.append = function (el) {
-    //Sets up the parent child relationship of DOM element objects
-    this.$.appendChild(el.$);
+
+    // Appends child to parent
+
+    this.$.appendChild(viewMachine(el).$);
     return this;
   };
   viewMachine.prototype.mappend = function (list) {
-    if (typeof list === 'object') {
-      for (var item in list) {
-        this.append(list[item]);
-      }
-    } else {
-      for (var i = 0; i < list.length; i++) {
-        this.append(list[i]);
-      }
+    
+    //
+
+    for (var i = 0; i < list.length; i++) {
+      this.append(list[i]);
     }
     return this;
   };
