@@ -20,7 +20,7 @@ function (viewMachine) {
       if ($.VM !== undefined) {
 
         // If already a viewMachine element, extend it and return it
-
+        
         $.VM.attrs(attrs);
         $.VM.css(style);
         return $.VM;

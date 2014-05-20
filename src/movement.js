@@ -105,7 +105,8 @@ define([
 
   viewMachine.prototype.splice = function (pos, n, el) {
     var element = el? viewMachine(el).remove() : null,
-    spliced = this.children().splice(pos, n) || [];
+    children = this.children(),
+    spliced = children.splice(pos, n) || [];
     
     // Splice an HTML element like an array
 
@@ -114,6 +115,8 @@ define([
       if (spliced.length) {
         spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
         viewMachine(spliced[spliced.length - 1].$.nextSibling);
+      } else if (n > 0) {
+
       } else {
         this.prepend(el);
       }

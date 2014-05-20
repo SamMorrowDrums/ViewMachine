@@ -11,6 +11,9 @@ define([
       // If object input, set all key, value pairs
 
       for (var key in attr) {
+        if (key === 'text' || key === 'HTMLtext') {
+          this[key](attr[key]);
+        }
         this.$.setAttribute(key, attr[key]);
       }
     } else if (typeof attr === 'string' && val !== undefined) {
