@@ -3,6 +3,14 @@ define([
   './elements'
 ],function (viewMachine, document) {
 
+  // Add methods to the types object
+
+  viewMachine.types = viewMachine.types || {};
+
+  // Register properties that need to be stored during serialization
+
+  viewMachine.properties = viewMachine.properties || {};
+
   viewMachine.List = function (values) {
     var parent = 'ul',
         children = values,

@@ -36,10 +36,5 @@ define([
     return parent.mappend(children);
   };
 
-  //When creating a constructor function, add your methods to the types object, so you can add the methods to an object, even without calling the constructor
-  viewMachine.types = viewMachine.types || {};
-  //Also register the poperties that need to be stored in order to use the above methods
-  viewMachine.properties = viewMachine.properties || {};
-
   return viewMachine;
 });
