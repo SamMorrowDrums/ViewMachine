@@ -71,9 +71,10 @@ define([
     var temp, rowdata, text;
     var theHeadings = headings || keys;
     table.currentHeadings = theHeadings;
-    header.append(new viewMachine.parent('tr', 'th', theHeadings));
+    header.append(viewMachine.parent('tr', 'th', theHeadings));
+    table.append(header);
     for (var row in data) {
-      if (h.call(data, row)){
+      if (data.hasOwnProperty(row)){
         temp = viewMachine('tr');
         for (var i = 0; i < rows; i++) {
           text = data[row][keys[i]];
@@ -85,7 +86,6 @@ define([
         body.append(temp);
       }
     }
-    table.children.push(header);
     table.append(body);
     table.preserve = false;
     table.keys = keys;
@@ -122,12 +122,12 @@ define([
       }
       i = 0;
       for (var row in data) {
-        if (h.call(data, row)) {
+        if (data.hasOwnProperty(row)) {
           tempData[row] = data[row];
-          if (! h.call(this.currentData, row)) {
+          if (! this.currentData.hasOwnProperty(row)) {
             temp = viewMachine('tr');
             for (var n = 0; n < rows; n++) {
-              if (h.call(data[row], this.keys[n])) {
+              if (data[row].hasOwnProperty(this.keys[n])) {
                 text = data[row][this.keys[n]];
                 if (Array.isArray(text)){
                   text = text.join(', ');
@@ -141,7 +141,7 @@ define([
           } else if ((JSON.stringify(this.currentData[row]) !== JSON.stringify(data[row]))) {
              //JSON Stringify is not the way to do this. Need to look at ways that I can tell what has changed
             for (var x = 0; x < rows; x++) {
-              if (h.call(data[row], this.keys[x])) {
+              if (data[row].hasOwnProperty(this.keys[x])) {
                 if (data[row][this.keys[x]] !== this.currentData[row][this.keys[x]]){
                   this.cell(i, x).text(data[row][this.keys[x]]);
                 }
@@ -159,7 +159,7 @@ define([
       this.currentHeadings = headings || keys;
       var tempData = {};
       tempData = viewMachine.extend(tempData, this.currentData);
-      this.children[0].splice(0, 1, new viewMachine.parent('tr', 'th', this.currentHeadings));
+      this.children()[0].splice(0, 1, new viewMachine.parent('tr', 'th', this.currentHeadings));
       this.data([]);
       this.keys = keys;
       this.data(tempData);
