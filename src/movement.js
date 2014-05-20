@@ -44,6 +44,12 @@ define([
     this.$.remove();
     return this;
   };
+
+  viewMachine.prototype.empty = function () {
+    this.$.innerHTML = '';
+    return this;
+  };
+
   viewMachine.prototype.replace = function (element) {
     var parent = this.parent();
     console.log(parent);

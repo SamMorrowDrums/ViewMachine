@@ -3,14 +3,35 @@ define([
   './elements'
 ],function (viewMachine, document) {
 
-  viewMachine.List = function (arg) {
-    //Construct html list object takes either a number, JS list, or an object with parent properties for the UL, and a child property containing a list
-    var parent = 'ul', children = arg;
-    if (arg.parent) {
-      parent = {type: 'ul', properties: arg.parent};
-      children = arg.children;
+  viewMachine.List = function (values) {
+    var parent = 'ul',
+        children = values,
+        list;
+
+    // Build an HTML UL, with just the values
+
+    if (values.attrs) {
+      parent = {type: 'ul', attrs: values.attrs};
+      children = values.values;
     }
-    return viewMachine.parent(parent, 'li', children);
+
+    // Create list
+
+    list = viewMachine.parent(parent, 'li', children);
+
+    viewMachine.extend(list, viewMachine.types.list);
+    return list;
+  };
+
+  viewMachine.types.list = {
+    values: function (values) {
+      var temp = viewMachine.parent('ul', 'li', values);
+
+      // Change contents of an exisitng list
+
+      this.empty();
+      this.mappend(temp.children());
+    }
   };
 
   viewMachine.Select = function (arg) {
