@@ -3,7 +3,7 @@ define([
 ],function (viewMachine, document) {
 
   viewMachine.parent = function (type, childType, values) {
-    var parent = typeof type === 'object' && type.type ? VM(type.type, type.properties) : VM(type);
+    var parent = typeof type === 'object' && type.type ? VM(type.type, type.attrs) : VM(type);
         children = [];
     
     // Construct html parent objects (ul, ol, div)
