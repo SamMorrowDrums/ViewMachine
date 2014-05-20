@@ -18,7 +18,7 @@
       if ($.VM !== undefined) {
 
         // If already a viewMachine element, extend it and return it
-
+        
         $.VM.attrs(attrs);
         $.VM.css(style);
         return $.VM;
@@ -78,6 +78,9 @@
       // If object input, set all key, value pairs
 
       for (var key in attr) {
+        if (key === 'text' || key === 'HTMLtext') {
+          this[key](attr[key]);
+        }
         this.$.setAttribute(key, attr[key]);
       }
     } else if (typeof attr === 'string' && val !== undefined) {
@@ -246,6 +249,12 @@
     this.$.remove();
     return this;
   };
+
+  viewMachine.prototype.empty = function () {
+    this.$.innerHTML = '';
+    return this;
+  };
+
   viewMachine.prototype.replace = function (element) {
     var parent = this.parent();
     console.log(parent);
@@ -307,7 +316,8 @@
 
   viewMachine.prototype.splice = function (pos, n, el) {
     var element = el? viewMachine(el).remove() : null,
-    spliced = this.children().splice(pos, n) || [];
+    children = this.children(),
+    spliced = children.splice(pos, n) || [];
     
     // Splice an HTML element like an array
 
@@ -316,6 +326,8 @@
       if (spliced.length) {
         spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
         viewMachine(spliced[spliced.length - 1].$.nextSibling);
+      } else if (n > 0) {
+
       } else {
         this.prepend(el);
       }
@@ -524,64 +536,106 @@
   };
 
 
-  viewMachine.parent = function (type, childType, arg) {
+  viewMachine.parent = function (type, childType, values) {
+    var parent = typeof type === 'object' && type.type ? VM(type.type, type.attrs) : VM(type);
+        children = [];
     
     // Construct html parent objects (ul, ol, div)
 
-    
-    var el, props, parent = type;
-    if (type.properties) {
-      props = type.properties;
-      parent = type.type;
-    }
-    el = new viewMachine.init(parent, props);
-    if (typeof arg === "number") {
-      for (var n = 0; n < arg; n++) {
-        el.append(new viewMachine.init(childType));
-      }
-    } else if (Array.isArray(arg)) {
-      var value, child;
-      var len = arg.length;
-      for (var item = 0; item<len; item++) {
-        if (typeof arg[item] === 'object') {
-          if (arg[item].type === 'ViewMachine') {
-            child = arg[item];
-          } else {
-           child = new viewMachine.init(childType, arg[item]);
-          }
+    if (Array.isArray(values)) {
+      for (var i = 0; i < values.length; i++) {
+        if (typeof values[i] === 'object') {
+
+          // If attributes object, pass that
+
+          children.push(VM(childType, values[i]));
         } else {
-          child = new viewMachine.init(childType, {text: arg[item]});
+
+          // If just a value, use as text
+
+          children.push(VM(childType, {text: values[i]}));
         }
-        el.append(child);
+      }
+    } else if (typeof values === 'number') {
+
+      // If just a number given, make that many elements
+
+      for (var n = 0; n < values; n++) {
+        children.push(VM(childType));
       }
     }
-    return el;
+
+    // Return the parent with all children added
+
+    return parent.mappend(children);
   };
 
-  //When creating a constructor function, add your methods to the types object, so you can add the methods to an object, even without calling the constructor
+
+  // Add methods to the types object
+
   viewMachine.types = viewMachine.types || {};
-  //Also register the poperties that need to be stored in order to use the above methods
+
+  // Register properties that need to be stored during serialization
+
   viewMachine.properties = viewMachine.properties || {};
 
+  viewMachine.List = function (values) {
+    var parent = 'ul',
+        children = values,
+        list;
 
-  viewMachine.List = function (arg) {
-    //Construct html list object takes either a number, JS list, or an object with parent properties for the UL, and a child property containing a list
-    var parent = 'ul', children = arg;
-    if (arg.parent) {
-      parent = {type: 'ul', properties: arg.parent};
-      children = arg.children;
+    // Build an HTML UL, with just the values
+
+    if (values.attrs) {
+      parent = {type: 'ul', attrs: values.attrs};
+      children = values.values;
     }
-    return viewMachine.parent(parent, 'li', children);
+
+    // Create list, and extend it's methods
+
+    list = viewMachine.parent(parent, 'li', children);
+
+    viewMachine.extend(list, viewMachine.types.list);
+    return list;
   };
 
-  viewMachine.Select = function (arg) {
-    //Construct html Select object takes either a number, JS list, or an object with 'parent' containing properties for the select, and a child property containing a list
-    var parent = 'select', children = arg;
-    if (arg.parent) {
-      parent = {type: 'select', properties: arg.parent};
-      children = arg.children;
+  viewMachine.types.list = {
+    values: function (values) {
+      var temp = viewMachine.parent('ul', 'li', values);
+
+      // Change contents of an exisitng list
+
+      this.empty();
+      this.mappend(temp.children());
     }
-    return viewMachine.parent(parent, 'option', children);
+  };
+
+  viewMachine.Select = function (values) {
+    var parent = 'select',
+        children = values;
+
+    // Create a select element
+
+    if (values.parent) {
+      parent = {type: 'select', attrs: values.parent};
+      children = values.children;
+    }
+
+    var select = viewMachine.parent(parent, 'option', children);
+
+    viewMachine.extend(select, viewMachine.types.select);
+    return select;
+  };
+
+  viewMachine.types.select = {
+    options: function (values) {
+      var temp = viewMachine.parent('select', 'option', values);
+
+      // Change options of an exisitng select
+
+      this.empty();
+      this.mappend(temp.children());
+    }
   };
 
   viewMachine.Table = function (data, keys, headings){
@@ -593,12 +647,16 @@
     var temp, rowdata, text;
     var theHeadings = headings || keys;
     table.currentHeadings = theHeadings;
-    header.append(new viewMachine.parent('tr', 'th', theHeadings));
+    header.append(viewMachine.parent('tr', 'th', theHeadings));
+    table.append(header);
     for (var row in data) {
-      if (h.call(data, row)){
+      if (data.hasOwnProperty(row)){
         temp = viewMachine('tr');
         for (var i = 0; i < rows; i++) {
           text = data[row][keys[i]];
+          if (text === undefined) {
+            text = '';
+          }
           if (Array.isArray(text)){
             text = text.join(', ');
           }
@@ -607,7 +665,6 @@
         body.append(temp);
       }
     }
-    table.children.push(header);
     table.append(body);
     table.preserve = false;
     table.keys = keys;
@@ -644,12 +701,12 @@
       }
       i = 0;
       for (var row in data) {
-        if (h.call(data, row)) {
+        if (data.hasOwnProperty(row)) {
           tempData[row] = data[row];
-          if (! h.call(this.currentData, row)) {
+          if (! this.currentData.hasOwnProperty(row)) {
             temp = viewMachine('tr');
             for (var n = 0; n < rows; n++) {
-              if (h.call(data[row], this.keys[n])) {
+              if (data[row].hasOwnProperty(this.keys[n])) {
                 text = data[row][this.keys[n]];
                 if (Array.isArray(text)){
                   text = text.join(', ');
@@ -663,7 +720,7 @@
           } else if ((JSON.stringify(this.currentData[row]) !== JSON.stringify(data[row]))) {
              //JSON Stringify is not the way to do this. Need to look at ways that I can tell what has changed
             for (var x = 0; x < rows; x++) {
-              if (h.call(data[row], this.keys[x])) {
+              if (data[row].hasOwnProperty(this.keys[x])) {
                 if (data[row][this.keys[x]] !== this.currentData[row][this.keys[x]]){
                   this.cell(i, x).text(data[row][this.keys[x]]);
                 }
@@ -681,20 +738,25 @@
       this.currentHeadings = headings || keys;
       var tempData = {};
       tempData = viewMachine.extend(tempData, this.currentData);
-      this.children[0].splice(0, 1, new viewMachine.parent('tr', 'th', this.currentHeadings));
+      this.children()[0].splice(0, 1, new viewMachine.parent('tr', 'th', this.currentHeadings));
       this.data([]);
       this.keys = keys;
       this.data(tempData);
       return this;
     },
     cell: function (r, c){
+
       //Simple way to get access to any cell
-      return this.children[1].children[r].children[c];
+
+      return this.children()[1].children()[r].children()[c];
     }
   };
 
   viewMachine.Video = function (types, src, attrs) {
     var video = viewMachine('video', attrs);
+
+    // Create HTML5 video element, with multiple types
+
     for (var type in types) {
       video.append( viewMachine( 'source', {src: src + '.' + types[type], type: 'video/' + types[type]} ) );
     }
@@ -703,18 +765,15 @@
 
 
   viewMachine.Image = function (src, preloadSrc, attrs) {
-    var img = viewMachine('img', {src: preloadSrc, 'data-img': src});
+    var img = viewMachine('img', viewMachine.extend(attrs, {src: preloadSrc, 'data-img': src}));
     img.preload = preloadSrc;
     img.src = src;
-    for (var attr in attrs) {
-      img.properties[attr] = attrs[attr];
-    }
+
+    // Create preloading images
+
     var source = new Image();
     source.onload = function () {
-      img.properties.src = img.properties['data-img'];
-      if (img.drawn) {
-        img.draw();
-      }
+      img.attrs('src', img.data('img'));
     };
     source.src = src;
     return img;
