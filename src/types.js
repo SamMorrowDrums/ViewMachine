@@ -15,7 +15,7 @@ define([
       children = values.values;
     }
 
-    // Create list
+    // Create list, and extend it's methods
 
     list = viewMachine.parent(parent, 'li', children);
 
@@ -34,14 +34,32 @@ define([
     }
   };
 
-  viewMachine.Select = function (arg) {
-    //Construct html Select object takes either a number, JS list, or an object with 'parent' containing properties for the select, and a child property containing a list
-    var parent = 'select', children = arg;
-    if (arg.parent) {
-      parent = {type: 'select', properties: arg.parent};
-      children = arg.children;
+  viewMachine.Select = function (values) {
+    var parent = 'select',
+        children = values;
+
+    // Create a select element
+
+    if (values.parent) {
+      parent = {type: 'select', attrs: values.parent};
+      children = values.children;
     }
-    return viewMachine.parent(parent, 'option', children);
+
+    var select = viewMachine.parent(parent, 'option', children);
+
+    viewMachine.extend(select, viewMachine.types.select);
+    return select;
+  };
+
+  viewMachine.types.select = {
+    options: function (values) {
+      var temp = viewMachine.parent('select', 'option', values);
+
+      // Change options of an exisitng select
+
+      this.empty();
+      this.mappend(temp.children());
+    }
   };
 
   viewMachine.Table = function (data, keys, headings){
