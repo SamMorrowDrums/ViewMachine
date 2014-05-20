@@ -6,8 +6,7 @@ ViewMachine
 ___VM is currently undergoing the following changes:___
 
 * Using more of the built-in methods for DOM interaction
-* Building with requireJS instead of Concat
-* Restructuring organiztion of source files
+* Cleaning up source since move to r.js
 * Tests need to be added
 * Documentation needs to be written once final decisions have been made
 
