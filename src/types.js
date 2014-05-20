@@ -78,6 +78,9 @@ define([
         temp = viewMachine('tr');
         for (var i = 0; i < rows; i++) {
           text = data[row][keys[i]];
+          if (text === undefined) {
+            text = '';
+          }
           if (Array.isArray(text)){
             text = text.join(', ');
           }
@@ -166,13 +169,18 @@ define([
       return this;
     },
     cell: function (r, c){
+
       //Simple way to get access to any cell
-      return this.children[1].children[r].children[c];
+
+      return this.children()[1].children()[r].children()[c];
     }
   };
 
   viewMachine.Video = function (types, src, attrs) {
     var video = viewMachine('video', attrs);
+
+    // Create HTML5 video element, with multiple types
+
     for (var type in types) {
       video.append( viewMachine( 'source', {src: src + '.' + types[type], type: 'video/' + types[type]} ) );
     }
@@ -181,18 +189,15 @@ define([
 
 
   viewMachine.Image = function (src, preloadSrc, attrs) {
-    var img = viewMachine('img', {src: preloadSrc, 'data-img': src});
+    var img = viewMachine('img', viewMachine.extend(attrs, {src: preloadSrc, 'data-img': src}));
     img.preload = preloadSrc;
     img.src = src;
-    for (var attr in attrs) {
-      img.properties[attr] = attrs[attr];
-    }
+
+    // Create preloading images
+
     var source = new Image();
     source.onload = function () {
-      img.properties.src = img.properties['data-img'];
-      if (img.drawn) {
-        img.draw();
-      }
+      img.attrs('src', img.data('img'));
     };
     source.src = src;
     return img;
