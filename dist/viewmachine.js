@@ -69,6 +69,69 @@
   window.viewMachine = window.VM = viewMachine;
 
 
+  viewMachine.crunch = function(source) {
+    var src = viewMachine(source);
+    var children = src.children();
+    var len = children.length;
+    for (var i = 0; i < len; i++) {
+      viewMachine.crunch(children[i]);
+    }
+    return src;
+  };
+
+  viewMachine.extend = function(out) {
+    out = out || {};
+    for (var i = 1; i < arguments.length; i++) {
+      var obj = arguments[i];
+      if (!obj)
+        continue;
+      if (Array.isArray(obj)){
+        out = [];
+        for (var n = 0; n < obj.length; n++) {
+          if (typeof obj[n] === 'object') {
+            out.push({});
+            viewMachine.extend(out[i], obj[i]);
+          } else {
+            out.push(obj[i]);
+          }
+        }
+      }
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (typeof obj[key] === 'object')
+            viewMachine.extend(out[key], obj[key]);
+          else
+            out[key] = obj[key];
+        }
+      }
+    }
+    return out;
+  };
+  //This is not neccessarily more efficient and should likely be dropped
+  var h = Object.prototype.hasOwnProperty;
+  
+  viewMachine.isEmpty = function (obj) {
+    if (obj === null) return true;
+    if (obj.length > 0)    return false;
+    if (obj.length === 0)  return true;
+    // toString and valueOf enumeration bugs in IE < 9
+    for (var key in obj) {
+      if (h.call(obj, key)) return false;
+    }
+    return true;
+  };
+
+  viewMachine.schonfinkelize = function (fn) {
+    var slice = Array.prototype.slice,
+      stored_args = slice.call(arguments, 1);
+    return function () {
+      var new_args = slice.call(arguments),
+        args = stored_args.concat(new_args);
+      return fn.apply(null, args);
+    };
+  };
+
+
   viewMachine.prototype.attrs = function (attr, val) {
     
     // Gets and sets attributes
@@ -80,8 +143,11 @@
       for (var key in attr) {
         if (key === 'text' || key === 'HTMLtext') {
           this[key](attr[key]);
+        } else if (this[key] === 'style'){
+          this.css(key, attr[key]);
+        } else {
+          this.$.setAttribute(key, attr[key]);
         }
-        this.$.setAttribute(key, attr[key]);
       }
     } else if (typeof attr === 'string' && val !== undefined) {
 
@@ -473,69 +539,6 @@
   };
 
 
-  viewMachine.crunch = function(source) {
-    var src = viewMachine(source);
-    var children = src.children();
-    var len = children.length;
-    for (var i = 0; i < len; i++) {
-      viewMachine.crunch(children[i]);
-    }
-    return src;
-  };
-
-  viewMachine.extend = function(out) {
-    out = out || {};
-    for (var i = 1; i < arguments.length; i++) {
-      var obj = arguments[i];
-      if (!obj)
-        continue;
-      if (Array.isArray(obj)){
-        out = [];
-        for (var n = 0; n < obj.length; n++) {
-          if (typeof obj[n] === 'object') {
-            out.push({});
-            viewMachine.extend(out[i], obj[i]);
-          } else {
-            out.push(obj[i]);
-          }
-        }
-      }
-      for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          if (typeof obj[key] === 'object')
-            viewMachine.extend(out[key], obj[key]);
-          else
-            out[key] = obj[key];
-        }
-      }
-    }
-    return out;
-  };
-  //This is not neccessarily more efficient and should likely be dropped
-  var h = Object.prototype.hasOwnProperty;
-  
-  viewMachine.isEmpty = function (obj) {
-    if (obj === null) return true;
-    if (obj.length > 0)    return false;
-    if (obj.length === 0)  return true;
-    // toString and valueOf enumeration bugs in IE < 9
-    for (var key in obj) {
-      if (h.call(obj, key)) return false;
-    }
-    return true;
-  };
-
-  viewMachine.schonfinkelize = function (fn) {
-    var slice = Array.prototype.slice,
-      stored_args = slice.call(arguments, 1);
-    return function () {
-      var new_args = slice.call(arguments),
-        args = stored_args.concat(new_args);
-      return fn.apply(null, args);
-    };
-  };
-
-
   viewMachine.parent = function (type, childType, values) {
     var parent = typeof type === 'object' && type.type ? VM(type.type, type.attrs) : VM(type);
         children = [];
@@ -780,6 +783,102 @@
   };
 
   viewMachine.properties.img = ['src', 'preload'];
+
+
+    viewMachine.createTemplate = function (obj) {
+    //This will need work, but is the basis for template generation
+    var template = {};
+    if (typeof obj === 'object' && obj instanceof viewMachine.init) {
+      template.element = obj.element;
+      if (obj.id !== undefined) {
+        template.id = obj.id;
+      }
+      template.attrs = obj.getAllAttrs() || {};
+      var children = obj.children();
+      if (children.length && (obj.preserve === undefined || obj.preserve === true)) {
+        template.children = [];
+        for (var child in children) {
+          if (typeof obj === 'object' && obj instanceof viewMachine.init) {
+            template.children.push(viewMachine.createTemplate(children[child]));
+          }
+        }
+      } else if (obj.preserve === false){
+        template.preserve = false;
+      }
+      if (viewMachine.properties[obj.element]) {
+        for (var prop in viewMachine.properties[obj.element]) {
+          if (typeof obj[viewMachine.properties[obj.element][prop]] === 'object') {
+            if (Array.isArray(obj[viewMachine.properties[obj.element][prop]])) {
+              template[viewMachine.properties[obj.element][prop]] = [];
+            } else {
+              template[viewMachine.properties[obj.element][prop]] = {};
+            }
+            template[viewMachine.properties[obj.element][prop]] = viewMachine.extend(template[viewMachine.properties[obj.element][prop]], obj[viewMachine.properties[obj.element][prop]]);
+          } else {
+            template[viewMachine.properties[obj.element][prop]] = obj[viewMachine.properties[obj.element][prop]];
+          }
+        }
+      }
+      if (obj.events && obj.events.length) {
+        template.events = [];
+        for (var i in obj.events) {
+          if (typeof obj.events[i].callback === 'string') {
+            template.events.push({event: obj.events[i].event, callback: obj.events[i].callback});
+          }
+        }
+      }
+      return template;
+    }
+    return false;
+  };
+
+  viewMachine.construct = function (template) {
+    //Construct a ViewMachine template from a JS object
+    var obj;
+    if (template.preserve === false) {
+      obj = viewMachine[template.element.substring(0, 1).toUpperCase() + template.element.substring(1, template.element.length)](template[viewMachine.properties[template.element][0]], template[viewMachine.properties[template.element][1]], template[viewMachine.properties[template.element][2]], template[viewMachine.types[template.element][3]]);
+    } else {
+      if (template.element === 'img' && typeof template.preload === 'string') {
+        obj = viewMachine.Image(template.src, template.preload, template.attrs);
+      } else {
+        obj = new viewMachine.init(template.element, template.attrs);
+      }
+      if (viewMachine.properties[obj.element]) {
+        for (var prop in viewMachine.properties[obj.element]) {
+          if (typeof obj[viewMachine.properties[obj.element][prop]] === 'object') {
+            obj[viewMachine.properties[obj.element][prop]] = {};
+            viewMachine.extend(obj[viewMachine.properties[obj.element][prop]], template[viewMachine.properties[obj.element][prop]]);
+          } else {
+            obj[viewMachine.properties[obj.element][prop]] = template[viewMachine.properties[obj.element][prop]];
+          }
+        }
+      }
+      if (viewMachine.types[obj.element]) {
+        viewMachine.extend(obj, viewMachine.types[obj.element]);
+      }
+    }
+    for (var child in template.children) {
+      obj.append(viewMachine.construct(template.children[child]));
+    }
+    if (template.events !== undefined) {
+      obj.events = template.events;
+    }
+    return obj;
+  };
+
+  viewMachine.jsonTemplate = function (template) {
+    //Create, or parse JSON version of template
+    if (typeof template === 'string') {
+      var obj = JSON.parse(template);
+      //Need to run a template constructor on this.
+      return viewMachine.construct(obj);
+    }
+    if (typeof template === 'object') {
+      template = viewMachine.createTemplate(template);
+    }
+    console.log(template);
+    return JSON.stringify(template);
+  };
 
 
   function Template (constructor) {

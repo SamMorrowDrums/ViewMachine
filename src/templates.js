@@ -7,29 +7,18 @@ define([
     viewMachine.createTemplate = function (obj) {
     //This will need work, but is the basis for template generation
     var template = {};
-    if (typeof obj === 'object' && obj.type === 'ViewMachine') {
+    if (typeof obj === 'object' && obj instanceof viewMachine.init) {
       template.element = obj.element;
-      if (! viewMachine.isEmpty(obj.style)) {
-        template.style = obj.style;
-      }
       if (obj.id !== undefined) {
         template.id = obj.id;
       }
-      if (! viewMachine.isEmpty(obj.properties)) {
-        for (var key in obj.properties) {
-          if (obj.properties[key] !== undefined) {
-            if (key !== 'id') {
-              template.properties = template.properties || {};
-              template.properties[key] = obj.properties[key];
-            }
-          }
-       }
-      }
-      if (obj.children.length && (obj.preserve === undefined || obj.preserve === true)) {
+      template.attrs = obj.getAllAttrs() || {};
+      var children = obj.children();
+      if (children.length && (obj.preserve === undefined || obj.preserve === true)) {
         template.children = [];
-        for (var child in obj.children) {
-          if (typeof obj === 'object' && obj.type === 'ViewMachine') {
-            template.children.push(viewMachine.createTemplate(obj.children[child]));
+        for (var child in children) {
+          if (typeof obj === 'object' && obj instanceof viewMachine.init) {
+            template.children.push(viewMachine.createTemplate(children[child]));
           }
         }
       } else if (obj.preserve === false){
@@ -49,7 +38,7 @@ define([
           }
         }
       }
-      if (obj.events.length) {
+      if (obj.events && obj.events.length) {
         template.events = [];
         for (var i in obj.events) {
           if (typeof obj.events[i].callback === 'string') {
@@ -66,12 +55,12 @@ define([
     //Construct a ViewMachine template from a JS object
     var obj;
     if (template.preserve === false) {
-      obj = new viewMachine[template.element.substring(0, 1).toUpperCase() + template.element.substring(1, template.element.length)](template[viewMachine.properties[template.element][0]], template[viewMachine.properties[template.element][1]], template[viewMachine.properties[template.element][2]], template[viewMachine.types[template.element][3]]);
+      obj = viewMachine[template.element.substring(0, 1).toUpperCase() + template.element.substring(1, template.element.length)](template[viewMachine.properties[template.element][0]], template[viewMachine.properties[template.element][1]], template[viewMachine.properties[template.element][2]], template[viewMachine.types[template.element][3]]);
     } else {
       if (template.element === 'img' && typeof template.preload === 'string') {
-        obj = new viewMachine.Image(template.src, template.preload, template.properties);
+        obj = viewMachine.Image(template.src, template.preload, template.attrs);
       } else {
-        obj = new viewMachine.init(template.element, template.properties);
+        obj = new viewMachine.init(template.element, template.attrs);
       }
       if (viewMachine.properties[obj.element]) {
         for (var prop in viewMachine.properties[obj.element]) {
@@ -90,12 +79,6 @@ define([
     for (var child in template.children) {
       obj.append(viewMachine.construct(template.children[child]));
     }
-    if (template.style) {
-      obj.style = template.style;
-    }
-    if (template.id !== undefined) {
-      obj.id = template.id;
-    }
     if (template.events !== undefined) {
       obj.events = template.events;
     }
@@ -109,9 +92,10 @@ define([
       //Need to run a template constructor on this.
       return viewMachine.construct(obj);
     }
-    if (typeof template === 'object' && template.type === 'ViewMachine') {
+    if (typeof template === 'object') {
       template = viewMachine.createTemplate(template);
     }
+    console.log(template);
     return JSON.stringify(template);
   };
 
