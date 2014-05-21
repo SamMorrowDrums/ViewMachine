@@ -47,6 +47,7 @@ define([
 
   viewMachine.prototype.empty = function () {
     this.$.innerHTML = '';
+    this.innerText = null;
     return this;
   };
 
