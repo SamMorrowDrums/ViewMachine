@@ -73,6 +73,9 @@
     var src = viewMachine(source);
     var children = src.children();
     var len = children.length;
+
+    // 'Crunches' HTML page from a source element, into viewMachine code
+
     for (var i = 0; i < len; i++) {
       viewMachine.crunch(children[i]);
     }
@@ -882,10 +885,12 @@
   };
 
   viewMachine.jsonTemplate = function (template) {
-    //Create, or parse JSON version of template
+
+    // Create, or parse JSON version of template
+
     if (typeof template === 'string') {
       var obj = JSON.parse(template);
-      //Need to run a template constructor on this.
+
       return viewMachine.construct(obj);
     }
     if (typeof template === 'object') {
@@ -893,6 +898,52 @@
     }
     console.log(template);
     return JSON.stringify(template);
+  };
+
+  viewMachine.crunchMap = function(source) {
+    var map,
+        children,
+        cl,
+        id,
+        name;
+
+    // 'Crunches' down from a source, and returns a 'map' of key elements
+
+    if (arguments.length === 2) {
+      map = arguments[1];
+    } else {
+      map = {
+        origin: viewMachine.crunch(source),
+        id: {},
+        classes : {},
+        name: {}
+      };
+    }
+
+    children = source.children;
+    for (var i = 0; i < children.length; i++) {
+      id = children[i].id;
+      if (id) {
+        map.id[id] = children[i].VM;
+      }
+
+      cl = children[i].getAttribute('class');
+      if (cl) {
+        cl = cl.split(' ');
+        for (var n = 0; n < cl.length; n++) {
+          map.classes[cl[n]] = map.classes[cl[n]] || [];
+          map.classes[cl[n]].push(children[i].VM);
+        }
+      }
+      name = children[i].getAttribute('name');
+      if (name) {
+        map.name[name] = children[i].VM;
+      }
+      viewMachine.crunchMap(children[i], map);
+    }
+
+
+    return map;
   };
 
 

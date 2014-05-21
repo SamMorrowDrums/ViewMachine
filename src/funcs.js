@@ -7,6 +7,9 @@ function (ViewMachine) {
     var src = viewMachine(source);
     var children = src.children();
     var len = children.length;
+
+    // 'Crunches' HTML page from a source element, into viewMachine code
+
     for (var i = 0; i < len; i++) {
       viewMachine.crunch(children[i]);
     }
