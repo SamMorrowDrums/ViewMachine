@@ -3,19 +3,6 @@ define([
 ],
 function (ViewMachine) {
 
-  viewMachine.crunch = function(source) {
-    var src = viewMachine(source);
-    var children = src.children();
-    var len = children.length;
-
-    // 'Crunches' HTML page from a source element, into viewMachine code
-
-    for (var i = 0; i < len; i++) {
-      viewMachine.crunch(children[i]);
-    }
-    return src;
-  };
-
   viewMachine.extend = function(out) {
     out = out || {};
     for (var i = 1; i < arguments.length; i++) {

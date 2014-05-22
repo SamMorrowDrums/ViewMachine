@@ -112,8 +112,20 @@ define([
     if (typeof template === 'object') {
       template = viewMachine.createTemplate(template);
     }
-    console.log(template);
     return JSON.stringify(template);
+  };
+
+  viewMachine.crunch = function(source) {
+    var src =  viewMachine(source),
+        children = src.children(),
+        len = children.length;
+
+    // 'Crunches' HTML page from a source element, into viewMachine code
+
+    for (var i = 0; i < len; i++) {
+      viewMachine.crunch(children[i]);
+    }
+    return src;
   };
 
   viewMachine.crunchMap = function(source) {
@@ -136,7 +148,7 @@ define([
       };
     }
 
-    children = source.children;
+    children = source.VM ? source.children : source.$.children;
     for (var i = 0; i < children.length; i++) {
       id = children[i].id;
       if (id) {

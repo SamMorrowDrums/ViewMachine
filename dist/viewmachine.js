@@ -69,19 +69,6 @@
   window.viewMachine = window.VM = viewMachine;
 
 
-  viewMachine.crunch = function(source) {
-    var src = viewMachine(source);
-    var children = src.children();
-    var len = children.length;
-
-    // 'Crunches' HTML page from a source element, into viewMachine code
-
-    for (var i = 0; i < len; i++) {
-      viewMachine.crunch(children[i]);
-    }
-    return src;
-  };
-
   viewMachine.extend = function(out) {
     out = out || {};
     for (var i = 1; i < arguments.length; i++) {
@@ -896,8 +883,20 @@
     if (typeof template === 'object') {
       template = viewMachine.createTemplate(template);
     }
-    console.log(template);
     return JSON.stringify(template);
+  };
+
+  viewMachine.crunch = function(source) {
+    var src =  viewMachine(source),
+        children = src.children(),
+        len = children.length;
+
+    // 'Crunches' HTML page from a source element, into viewMachine code
+
+    for (var i = 0; i < len; i++) {
+      viewMachine.crunch(children[i]);
+    }
+    return src;
   };
 
   viewMachine.crunchMap = function(source) {
@@ -920,7 +919,7 @@
       };
     }
 
-    children = source.children;
+    children = source.VM ? source.children : source.$.children;
     for (var i = 0; i < children.length; i++) {
       id = children[i].id;
       if (id) {
@@ -947,28 +946,32 @@
   };
 
 
-  function Template (constructor) {
-    this.DOM = constructor.apply(this);
-  }
+  (function (viewMachine) {
 
-  Template.prototype.ref = function(ref, el) {
-    //Establish flat refs to viewMachine.El objects, that can be set during construction, for controller use in MVC patterns 
-    this.refs = this.refs || {};
-    this.refs[ref] = el;
-  };
-  Template.prototype.dataHandler = function (name, el, func) {
-    //Bind a reference to a viewMachine.El with a callback function, for binding data
-    this.data = this.data || {};
-    this.data[name] = viewMachine.schonfinkelize(func, el);
+    // Takes viewMachine JSON and returns a 'map' of the contents
+
+    function Gen() {
+      var template = viewMachine.jsonTemplate(this.template),
+          map = viewMachine.crunchMap(template);
+
+      if (this.fn) {
+        this.fn.apply(map, arguments);
+      }
+
+      return map;
+    }
+    Gen.prototype.dataHandler = function (name, el, func) {
+      //Bind a reference to a viewMachine.El with a callback function, for binding data
+      this.data = this.data || {};
+      this.data[name] = viewMachine.schonfinkelize(func, el);
+   };
+
+   viewMachine.gen = function (json, fn) {
+    return Gen.bind({template: json, fn: fn});
+
   };
 
-  viewMachine.Gen = function (constructor) {
-    //Template generator class - bind data and keep references, build new versions automatically.
-    this.build = function(){
-      return new Template(constructor);
-    };
-    //Template Generator function
-  };
+  })(viewMachine);
 
   /*
   viewMachine is a library/framework for dealing with templates, DOM manipulation responsive web design in pure JS.
