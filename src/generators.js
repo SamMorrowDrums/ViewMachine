@@ -2,27 +2,27 @@ define([
 
 ],function (viewMachine) {
 
-  function Template (constructor) {
-    this.DOM = constructor.apply(this);
-  }
+  (function (viewMachine) {
 
-  Template.prototype.ref = function(ref, el) {
-    //Establish flat refs to viewMachine.El objects, that can be set during construction, for controller use in MVC patterns 
-    this.refs = this.refs || {};
-    this.refs[ref] = el;
-  };
-  Template.prototype.dataHandler = function (name, el, func) {
-    //Bind a reference to a viewMachine.El with a callback function, for binding data
-    this.data = this.data || {};
-    this.data[name] = viewMachine.schonfinkelize(func, el);
+    // Returns a function that returns a 'map' of JSON render [after applying your function]
+
+    function Gen() {
+      var template = viewMachine.jsonTemplate(this.template),
+          map = viewMachine.crunchMap(template);
+
+      if (this.fn) {
+        this.fn.apply(map, arguments);
+      }
+
+      return map;
+    }
+
+   viewMachine.gen = function (json, fn) {
+    return Gen.bind({template: json, fn: fn});
+
   };
 
-  viewMachine.Gen = function (constructor) {
-    //Template generator class - bind data and keep references, build new versions automatically.
-    this.build = function(){
-      return new Template(constructor);
-    };
-    //Template Generator function
-  };
+  })(viewMachine);
+
   return viewMachine;
 });

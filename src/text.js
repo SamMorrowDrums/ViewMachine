@@ -7,7 +7,7 @@ define([
     // Completely escaped text function
 
     this.$.innerHTML = viewMachine.escape(text);
-
+    this.innerText = true;
     return this;
   };
 
@@ -55,7 +55,7 @@ define([
     output.push(viewMachine.escape(text));
 
     this.$.innerHTML = output.join('');
-
+    this.innerText = true;
     return this;
   };
 

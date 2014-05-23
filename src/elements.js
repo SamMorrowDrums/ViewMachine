@@ -13,8 +13,11 @@ define([
       for (var key in attr) {
         if (key === 'text' || key === 'HTMLtext') {
           this[key](attr[key]);
+        } else if (this[key] === 'style'){
+          this.css(key, attr[key]);
+        } else {
+          this.$.setAttribute(key, attr[key]);
         }
-        this.$.setAttribute(key, attr[key]);
       }
     } else if (typeof attr === 'string' && val !== undefined) {
 

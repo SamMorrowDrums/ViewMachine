@@ -1,12 +1,13 @@
 define([
   './core',
+  './funcs',
   './elements',
   './movement',
   './text',
   './events',
-  './funcs',
   './parents',
   './types',
+  './templates',
   './generators',
 ],
 function (viewMachine) {
