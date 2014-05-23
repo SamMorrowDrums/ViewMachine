@@ -4,7 +4,7 @@ define([
 
   (function (viewMachine) {
 
-    // Takes viewMachine JSON and returns a 'map' of the contents
+    // Returns a function that returns a 'map' of JSON render [after applying your function]
 
     function Gen() {
       var template = viewMachine.jsonTemplate(this.template),
@@ -16,11 +16,6 @@ define([
 
       return map;
     }
-    Gen.prototype.dataHandler = function (name, el, func) {
-      //Bind a reference to a viewMachine.El with a callback function, for binding data
-      this.data = this.data || {};
-      this.data[name] = viewMachine.schonfinkelize(func, el);
-   };
 
    viewMachine.gen = function (json, fn) {
     return Gen.bind({template: json, fn: fn});
