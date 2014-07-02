@@ -41,7 +41,11 @@ define([
 
     // Remove element from DOM/parent
 
-    return this.$.remove, this;
+    if (this.parent()) {
+      this.parent().$.removeChild(this.$);
+    }
+
+    return this;
   };
 
   viewMachine.prototype.empty = function () {
