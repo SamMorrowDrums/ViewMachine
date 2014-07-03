@@ -381,17 +381,15 @@
     
     // Splice an HTML element like an array
 
-    if (el) {
-
-      if (spliced.length) {
-        spliced[spliced.length - 1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
-        viewMachine(spliced[spliced.length - 1].$.nextSibling);
-      } else if (n > 0) {
-
+    if (element) {
+      if (pos > 0) {
+        children[pos-1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
+        viewMachine(children[pos].$.nextSibling);
       } else {
         this.prepend(el);
       }
     }
+
 
     for (var i = 0; i < spliced.length; i++) {
       spliced[i].remove();
