@@ -104,19 +104,14 @@ define([
   };
 
   viewMachine.prototype.addClass = function (cl) {
-    var classes = this.$.getAttribute('class'),
+    var classes = this.$.getAttribute('class') || '',
     split;
     // If existing classes, add gracefully to end
 
-    if (classes && classes.indexOf(cl) < 0) {
+    if (classes.indexOf(cl) < 0) {
       split = classes.split(' ');
       split.push(cl);
       this.$.setAttribute('class', split.join(' '));
-    } else {
-
-      // Else set class equal to new class
-
-      this.$.setAttribute('class', cl);
     }
     return this;
   };
