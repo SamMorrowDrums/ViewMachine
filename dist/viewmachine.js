@@ -13,7 +13,7 @@
 
     // Check if passed element was a DOM element
 
-    if (element instanceof HTMLElement === true) {
+    if (element.nodeType === 1) {
       $ = element;
       if ($.VM !== undefined) {
 
