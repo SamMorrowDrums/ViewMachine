@@ -123,7 +123,7 @@ define([
     if (element) {
       if (pos > 0) {
         children[pos-1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
-        viewMachine(children[pos].$.nextSibling);
+        el.$ = viewMachine(this.children()[pos].$).$;
       } else {
         this.prepend(el);
       }
