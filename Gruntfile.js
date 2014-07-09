@@ -18,6 +18,9 @@ module.exports = function(grunt) {
         }
       }
     },
+    qunit: {
+      all: ['tests/*.html']
+    },
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
@@ -30,7 +33,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'build', 'uglify']
+      tasks: ['jshint', 'build', 'uglify, qunit']
     }
   });
 
@@ -40,7 +43,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadTasks( "build/" );
 
-  grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['jshint', 'build', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'build', 'uglify', 'qunit']);
 
 };
