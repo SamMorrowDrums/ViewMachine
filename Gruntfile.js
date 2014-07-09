@@ -7,7 +7,7 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js', 'build/**/*.js'],
+      files: ['Gruntfile.js', 'src/**/*.js', 'build/**/*.js', 'tests/**/*.js'],
       options: {
         // options here to override JSHint defaults
         jshintrc: true,
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'build', 'uglify, qunit']
+      tasks: ['jshint', 'build', 'uglify', 'qunit']
     }
   });
 
