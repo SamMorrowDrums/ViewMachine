@@ -52,7 +52,7 @@
     test('append', function() {
       var length = body.children().length;
       var child = VM('div');
-      body.append(VM('div', {class:'different'}));
+      body.append(VM('div', {'class':'different'}));
       
       body.append(child);
 
@@ -87,7 +87,7 @@
 
     test('prepend', function() {
       var child = VM('div');
-      body.prepend(VM('div', {class:'different'}));
+      body.prepend(VM('div', {'class':'different'}));
 
       body.prepend(child);
 
