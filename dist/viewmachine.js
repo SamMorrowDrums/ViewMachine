@@ -6,6 +6,29 @@
     return new viewMachine.init(element, attrs, style);
   };
 
+  // Old IE check
+
+  (function () {
+    var undef,
+    ie,
+    v = 3,
+    div = document.createElement('div'),
+    all = div.getElementsByTagName('i');
+
+    while (
+        div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+        all[0]
+    );
+
+    ie = v > 4 ? v : undef;
+    if (ie && ie < 9) {
+      viewMachine.old = true;
+    } else {
+      viewMachine.old = null;
+    }
+
+  })();
+
   // Constructor function
 
   viewMachine.init = function (element, attrs, style) {
@@ -42,10 +65,13 @@
       throw('Value Error: element must be either an HTMLElement, or a string of an HTMLElement');
     }
 
-    // Create circular relationship with DOM
+    // Create circular relationship with DOM if not IE8
 
     this.$ = $;
-    $.VM = this;
+
+    if (!viewMachine.old) {
+      $.VM = this;
+    }
 
     // Use the new DOM element to get browser's tagName
 
