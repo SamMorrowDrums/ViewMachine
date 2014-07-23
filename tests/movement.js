@@ -102,7 +102,7 @@
 
     test('splice', function () {
       var children = [];
-      for (var i = 0; i < 99; i++) {
+      for (var i = 0; i < 100; i++) {
         children.push(VM('li', {id: i}));
       }
 
@@ -117,14 +117,11 @@
 
       ul.splice(0, 1, VM('li', {id: 'start'}));
 
-      children.splice(0, 1, VM('li'), {id: 'start'});  // The splice method of this line is the native Array.splice
-
-      console.log(ul.children());
-      console.log(children);
+      children.splice(0, 1, VM('li', {id: 'start'}));  // The splice method of this line is the native Array.splice
 
       equal(ul.children()[0].$.id, 'start', 'Item spliced to start, in correct position');
+      equal(ul.children()[1].$.id, 1, 'Item spliced to start, not affecting sibling');
       equal(ul.children().length, children.length, 'Item spliced to start, correct length');
-
 
       // splice into end
 
@@ -132,16 +129,56 @@
 
       children.splice(children.length - 1, 1, VM('li', {id: 'end'}));  // The splice method of this line is the native Array.splice
 
-
-      deepEqual(ul.children()[children.length - 1].$.id, 'end', 'Item splced to end, 1 removed');
+      equal(ul.children()[children.length - 1].$.id, 'end', 'Item spliced to end, in correct position');
+      equal(ul.children()[children.length - 2].$.id, 98, 'Item spliced to end, not affecting sibling');
+      equal(ul.children().length, children.length, 'Item spliced to end, correct length');
 
       // splice into middle
 
+      ul.splice(50, 1, VM('li', {id: 'mid'}));
+
+      children.splice(50, 1, VM('li', {id: 'mid'}));  // The splice method of this line is the native Array.splice
+
+      equal(ul.children()[50].$.id, 'mid', 'Item spliced to middle, in correct position');
+      equal(ul.children()[49].$.id, 49, 'Item spliced to middle, not affecting previous sibling');
+      equal(ul.children()[51].$.id, 51, 'Item spliced to middle, not affecting next sibling');
+      equal(ul.children().length, children.length, 'Item spliced to middle, correct length');
+
       // splice without removing element
+
+      ul.splice(99, 0, VM('li', {id: 'secondLast'}));
+
+      children.splice(99, 0, VM('li', {id: 'secondLast'}));  // The splice method of this line is the native Array.splice
+
+      equal(ul.children()[99].$.id, 'secondLast', 'Item spliced without removing, in correct position');
+      equal(ul.children()[100].$.id, 'end', 'Item spliced without removing, not affecting previous sibling');
+      equal(ul.children()[98].$.id, 98, 'Item spliced without removing, not affecting next sibling');
+      equal(ul.children().length, children.length, 'Item spliced without removing, correct length');
 
       // splice out single element
 
+      ul.splice(99, 1);
+
+      children.splice(99, 1);  // The splice method of this line is the native Array.splice
+
+      equal(ul.children()[99].$.id, 'end', 'Item spliced without removing, in correct position');
+      equal(ul.children()[98].$.id, 98, 'Item spliced without removing, not affecting next sibling');
+      equal(ul.children().length, children.length, 'Item spliced without removing, correct length');
+
+      // Splice nothing
+
+      ul.splice(0, 0);
+      children.splice(0, 0);
+
+      equal(ul.children().length, 100, 'Nothing spliced, nothing changed');
+
       // splice out all
+
+      ul.splice(0, children.length);
+
+      children.splice(0, children.length);  // The splice method of this line is the native Array.splice
+
+      equal(ul.children().length, 0, 'All elements spliced out');
     });
   
   }
