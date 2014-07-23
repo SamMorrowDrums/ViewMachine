@@ -7,7 +7,7 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js', 'build/**/*.js'],
+      files: ['Gruntfile.js', 'src/**/*.js', 'build/**/*.js', 'tests/**/*.js'],
       options: {
         // options here to override JSHint defaults
         jshintrc: true,
@@ -17,6 +17,9 @@ module.exports = function(grunt) {
           document: true
         }
       }
+    },
+    qunit: {
+      all: ['tests/*.html']
     },
     uglify: {
       options: {
@@ -30,7 +33,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'build', 'uglify']
+      tasks: ['jshint', 'build', 'uglify', 'qunit']
     }
   });
 
@@ -40,7 +43,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadTasks( "build/" );
 
-  grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['jshint', 'build', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'build', 'uglify', 'qunit']);
 
 };

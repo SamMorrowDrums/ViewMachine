@@ -8,9 +8,9 @@
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-qunit": "0.3.0",
     "grunt-contrib-watch": "0.5.3",
-    "grunt-contrib-uglify": "0.2.0"
+    "grunt-contrib-uglify": "0.2.0",
+    "requirejs": "~2.1.11"
   },
   "dependencies": {
-    "requirejs": "~2.1.11"
   }
 }
