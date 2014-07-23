@@ -101,6 +101,7 @@ define([
 
   viewMachine.prototype.prepend = function (el) {
     var element = viewMachine(el);
+    var attrs = element.getAllAttrs();
 
     // Add Element before first child
 
@@ -109,6 +110,7 @@ define([
     // Ensure that element is the actual element
 
     element.$ = this.$.firstChild;
+    element.attrs(attrs);
 
     return this;
   };
@@ -122,8 +124,10 @@ define([
 
     if (element) {
       if (pos > 0) {
+        var attrs = element.getAllAttrs();
         children[pos-1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
         el.$ = viewMachine(this.children()[pos].$).$;
+        el.attrs(attrs);
       } else {
         this.prepend(el);
       }
