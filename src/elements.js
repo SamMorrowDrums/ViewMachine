@@ -96,8 +96,14 @@ define([
     } else if (prop !== undefined) {
 
       // Get value
+      var style = getComputedStyle(this.$)[prop];
 
-      return getComputedStyle(this.$)[prop];
+      // If style unavailable, try getting raw style
+
+      if (!style) {
+        style = this.$.style[prop];
+      }
+      return style;
     }
 
     return this;

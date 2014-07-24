@@ -1,7 +1,5 @@
 (function (VM) {
 
-  module('Movement');
-
   function tests (body) {
 
     // Test the core functions of ViewMachine
@@ -193,6 +191,7 @@
   }
 
   window.onload = function (){
+    module('Movement');
     tests(VM(document.body));
   };
 
