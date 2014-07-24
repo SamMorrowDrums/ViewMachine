@@ -11,6 +11,10 @@
       'data-test': 'dataTest'
     };
 
+    if (VM.old) {
+      attrs.style = 'COLOR: blue';
+    }
+
     var div = VM('div');
 
     for (var k in attrs) {
@@ -96,12 +100,14 @@
 
     for (var k in css) {
 
-      ok(!div.css(k), k + ' CSS style blank by default');
+      equal(div.css(k), getComputedStyle(document.createElement('div'))[k], k + ' CSS style blank by default');
 
       // Define individual attrs
       div.css(k, css[k]);
       if (k === 'color') {
         ok ((div.css(k) === css[k] || div.css(k) === 'rgb(255, 0, 0)'), k + 'CSS style set and retreived');
+      } else if (k === 'background-color') {
+        ok ((div.css(k) === css[k] || div.css(k) === 'rgb(0, 128, 0)'), k + 'CSS style set and retreived');
       } else {
         equal(div.css(k), css[k], k + 'CSS style set and retreived');
       }
