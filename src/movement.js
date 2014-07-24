@@ -56,7 +56,6 @@ define([
 
   viewMachine.prototype.replace = function (element) {
     var parent = this.parent();
-    console.log(parent);
     // If object has a parent HTML element, swap it's children
 
     if (parent) {

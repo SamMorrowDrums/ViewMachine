@@ -1,7 +1,5 @@
 (function (VM) {
 
-  module('Movement');
-
   function tests (body) {
 
     // Test the core functions of ViewMachine
@@ -13,7 +11,12 @@
 
       ok(body.children().length === 2, 'Body has 2 children');
 
-      ok(body.children()[0].$.outerHTML.substr(0, 16) === '<div id="qunit">', 'First child is as expected');
+      ok('<' + body.children()[0].$.outerHTML
+        .substr(0, 16)
+        .toLowerCase()
+        .split('<')[1]   // Deal with random whitespace in old browsers
+        .split('"')      // Deal with lack of quotes in old browsers
+        .join('') === '<div id=qunit>', 'First child is as expected');
 
     });
 
@@ -26,7 +29,11 @@
 
       ok(body.children().length === length - 1, 'Checking length has decreased by 1');
 
-      ok(el.$.outerHTML === '<div id="Test"></div>', 'Checking removed element is identical to one added');
+      ok('<' + el.$.outerHTML
+        .toLowerCase()
+        .split('<')[1]   // Deal with random whitespace in old browsers
+        .split('"')      // Deal with lack of quotes in old browsers
+        .join('') === '<div id=test>', 'Checking removed element is identical to one added');
 
     });
 
@@ -184,6 +191,7 @@
   }
 
   window.onload = function (){
+    module('Movement');
     tests(VM(document.body));
   };
 
