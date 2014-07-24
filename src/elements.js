@@ -1,5 +1,5 @@
 define([
-  './core'
+  './core',
 ],function (viewMachine) {
 
   viewMachine.prototype.attrs = function (attr, val) {

@@ -45,6 +45,10 @@
       'data-test': 'dataTest'
     };
 
+    if (VM.old) {
+      attrs.style = 'COLOR: blue';
+    }
+
     var div = VM('div', attrs);
 
     deepEqual(div.getAllAttrs(), attrs, 'Check returned attrs are same as originally set');
@@ -96,8 +100,11 @@
 
       // Define individual attrs
       div.css(k, css[k]);
-      equal(div.css(k), css[k], k + 'CSS style set and retreived');
-
+      if (k === 'color') {
+        ok ((div.css(k) === css[k] || div.css(k) === 'rgb(255, 0, 0)'), k + 'CSS style set and retreived');
+      } else {
+        equal(div.css(k), css[k], k + 'CSS style set and retreived');
+      }
     }
 
   });
