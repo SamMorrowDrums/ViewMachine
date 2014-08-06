@@ -70,6 +70,14 @@
       body.children()[length].remove();
       body.children()[length].remove();
 
+      // Check reference
+
+      var check = VM('div');
+      var container = VM('div');
+      div.append(check);
+      check.$.innerHTML = 'Checking reference';
+      equal(div.children()[0].$.innerHTML, check.$.innerHTML, 'Checking reference to DOM element');
+
     });
 
     test('mappend', function() {
@@ -105,6 +113,13 @@
       body.children()[0].remove();
       body.children()[0].remove();
 
+      // Check reference
+
+      var check = VM('div');
+      var container = VM('div');
+      div.prepend(check);
+      check.$.innerHTML = 'Checking reference';
+      equal(div.children()[0].$.innerHTML, check.$.innerHTML, 'Checking reference to DOM element');
     });
 
     test('splice', function () {
@@ -183,9 +198,19 @@
 
       ul.splice(0, children.length);
 
+
       children.splice(0, children.length);  // The splice method of this line is the native Array.splice
 
       equal(ul.children().length, 0, 'All elements spliced out');
+
+      // Check references to newly spliced object
+
+      var check = VM('div', {id: 'Test'});
+      ul.mappend([VM('div'), VM('div')]);
+      ul.splice(1, 0, check);
+      ul.children()[1].text('Testing that the reference is preserved');
+
+      equal(check.$.innerHTML, ul.children()[1].$.innerHTML, 'Testing the reference to the DOM element is preserved');
     });
   
   }
