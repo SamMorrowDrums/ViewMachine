@@ -35,8 +35,10 @@
     var $;
 
     // Check if passed element was a DOM element
-
-    if (element.nodeType === 1) {
+    if (element === null) {
+      throw('Value Error: element must be either an HTMLElement, or a string of an HTMLElement');
+    }
+    else if (element.nodeType === 1) {
       $ = element;
       if ($.VM !== undefined) {
 
@@ -74,7 +76,6 @@
     }
 
     // Use the new DOM element to get browser's tagName
-
     this.element = $.tagName;
 
     // Set attributes and any inline styiling
@@ -293,6 +294,8 @@
   viewMachine.prototype.parent = function () {
     var parent = this.$.parentNode;
 
+    parent = parent && parent.nodeType === 1 ? parent : null;
+
     // Get parent and return viewMachine property
 
     if (parent && parent.VM !== undefined) {
@@ -387,17 +390,14 @@
   };
 
   viewMachine.prototype.prepend = function (el) {
-    var element = viewMachine(el);
-    var attrs = element.getAllAttrs();
+    var element = el.$ ? el : viewMachine(el);
 
     // Add Element before first child
 
     this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
     element.remove();
-    // Ensure that element is the actual element
 
-    element.$ = this.$.firstChild;
-    element.attrs(attrs);
+    element.$ = this.children()[0].$;
 
     return this;
   };
@@ -411,10 +411,8 @@
 
     if (element) {
       if (pos > 0) {
-        var attrs = element.getAllAttrs();
         children[pos-1].$.insertAdjacentHTML('afterend', element.$.outerHTML);
         el.$ = viewMachine(this.children()[pos].$).$;
-        el.attrs(attrs);
       } else {
         this.prepend(el);
       }

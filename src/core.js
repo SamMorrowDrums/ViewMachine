@@ -37,8 +37,10 @@ function (viewMachine) {
     var $;
 
     // Check if passed element was a DOM element
-
-    if (element.nodeType === 1) {
+    if (element === null) {
+      throw('Value Error: element must be either an HTMLElement, or a string of an HTMLElement');
+    }
+    else if (element.nodeType === 1) {
       $ = element;
       if ($.VM !== undefined) {
 
@@ -76,7 +78,6 @@ function (viewMachine) {
     }
 
     // Use the new DOM element to get browser's tagName
-
     this.element = $.tagName;
 
     // Set attributes and any inline styiling
