@@ -16,7 +16,7 @@ define([
       return VM(parent);
     }
 
-    return parent;
+    throw('Parent is undefined or null');
   };
 
   viewMachine.prototype.children = function () {
@@ -95,7 +95,9 @@ define([
     // Multi append, pass a list of elements / viewMachine objects / element types
 
     for (var i = 0; i < list.length; i++) {
-      this.append(list[i]);
+      if (list[i]) {
+        this.append(list[i]);
+      }
     }
     return this;
   };
@@ -103,22 +105,34 @@ define([
   viewMachine.prototype.prepend = function (el) {
     var element = el.$ ? el : viewMachine(el);
 
-    // Add Element before first child
+    /*
+      Doing this a longer way, so it preserves object references
 
-    this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
+    // Add Element before first child
     element.remove();
+    this.$.insertAdjacentHTML('afterbegin', element.$.outerHTML);
 
     element.$ = this.children()[0].$;
 
+    */
+
+    var children = this.children();
+    this.empty();
+    this.append(element);
+    this.mappend(children);
     return this;
   };
 
   viewMachine.prototype.splice = function (pos, n, el) {
-    var element = el? viewMachine(el).remove() : null,
+    var element = el? viewMachine(el) : null,
     children = this.children(),
-    spliced = children.splice(pos, n) || [];
+    spliced = element ? children.splice(pos, n, element) : children.splice(pos, n);
+  spliced = spliced || [];
     
     // Splice an HTML element like an array
+
+    /*
+      Doing this in a way that will preserve object references
 
     if (element) {
       if (pos > 0) {
@@ -133,6 +147,10 @@ define([
     for (var i = 0; i < spliced.length; i++) {
       spliced[i].remove();
     }
+    */
+
+    this.empty();
+    this.mappend(children);
 
     return spliced;
   };

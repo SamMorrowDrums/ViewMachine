@@ -5,6 +5,19 @@
     // Test the core functions of ViewMachine
     test('parent', function () {
       ok(body.parent().element === 'HTML', 'Parent element of body is HTML');
+      throws(VM('div').parent, 'Parent is undefined or null', 'Checking an element without a parent errors');
+
+      var parent = VM('div');
+      var child = VM('div');
+      parent.append(child);
+
+      var parent2 = child.parent();
+
+      parent2.$.innerHTML = 'TESTING';
+
+      equal(parent.$.innerHTML, parent2.$.innerHTML, 'Testing reference is preserved');
+
+
     });
 
     test('children', function () {
@@ -106,6 +119,8 @@
 
       body.prepend(child);
 
+
+
       deepEqual(child, body.children()[0], 'Child is identical to prepended child');
 
       equal(body.children()[1].attrs('class'), 'different', 'Check second child has class different');
@@ -117,9 +132,9 @@
 
       var check = VM('div');
       var container = VM('div');
-      div.prepend(check);
+      container.prepend(check);
       check.$.innerHTML = 'Checking reference';
-      equal(div.children()[0].$.innerHTML, check.$.innerHTML, 'Checking reference to DOM element');
+      equal(container.children()[0].$.innerHTML, check.$.innerHTML, 'Checking reference to DOM element');
     });
 
     test('splice', function () {
@@ -170,8 +185,8 @@
 
       ul.splice(99, 0, VM('li', {id: 'secondLast'}));
 
-      children.splice(99, 0, VM('li', {id: 'secondLast'}));  // The splice method of this line is the native Array.splice
 
+      children.splice(99, 0, VM('li', {id: 'secondLast'}));  // The splice method of this line is the native Array.splice
       equal(ul.children()[99].$.id, 'secondLast', 'Item spliced without removing, in correct position');
       equal(ul.children()[100].$.id, 'end', 'Item spliced without removing, not affecting previous sibling');
       equal(ul.children()[98].$.id, 98, 'Item spliced without removing, not affecting next sibling');
