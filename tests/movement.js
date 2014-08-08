@@ -1,10 +1,11 @@
 (function (VM) {
 
-  function tests (body) {
+  function tests () {
 
     // Test the core functions of ViewMachine
+    var body = VM('div').append(VM('div', {id: 'qunit'}));
     test('parent', function () {
-      ok(body.parent().element === 'HTML', 'Parent element of body is HTML');
+      ok(VM(document.body).parent().element === 'HTML', 'Parent element of body is HTML');
       throws(VM('div').parent, 'Parent is undefined or null', 'Checking an element without a parent errors');
 
       var parent = VM('div');
@@ -22,7 +23,7 @@
 
     test('children', function () {
 
-      ok(body.children().length === 2, 'Body has 2 children');
+      ok(body.children().length === 1, 'Body has 1 child');
 
       ok('<' + body.children()[0].$.outerHTML
         .substr(0, 16)
